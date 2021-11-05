@@ -1,0 +1,63 @@
+{
+  "id": "plugin-athena-health",
+  "displayName": "Athena Health",
+  "description": "Plugin for integrating data with Athena Health",
+  "apiVersion": "2",
+  "versionDescription": "Version 2",
+  "version": "2.0.0",
+  "iconFile": "icon.jpg",
+  "executable": "PluginAthenaHealth",
+  "kind": "publisher",
+  "os": "$GOOS",
+  "arch": "$GOARCH",
+  "canConfigure": true,
+  "canProduceMultipleSchemas": true,
+  "canAcceptQueryBasedSchemas": false,
+  "canUseOAuth": false,
+  "canWrite": true,
+  "configSchema": {
+    "ui": {
+      "ui:order": [
+        "ClientId",
+        "ClientSecret",
+        "PracticeId",
+        "ProductionPractice"
+      ],
+      "ClientSecret": {
+        "ui:widget": "password"
+      }
+    },
+    "schema": {
+      "type": "object",
+      "properties": {
+        "ClientId" : {
+          "type": "string",
+          "title": "Client ID",
+          "description": "Client ID to use for authentication."
+        },
+        "ClientSecret" : {
+          "type": "string",
+          "title": "Client Secret",
+          "description": "Client Secret to use for authentication."
+        },
+        "PracticeId" : {
+          "type": "string",
+          "title": "Practice ID",
+          "description": "Practice ID for the requested practice."
+        },
+        "ProductionPractice" : {
+          "type": "boolean",
+          "title": "Production Practice",
+          "description": "Is this a production practice?",
+          "default": false
+        }
+      },
+      "required": [
+        "PracticeId",
+        "ClientId",
+        "ClientSecret",
+        "ProductionPractice"
+      ]
+    }
+  }
+}
