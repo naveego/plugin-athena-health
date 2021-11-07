@@ -31,7 +31,7 @@ namespace PluginAthenaHealth.API.Factory
             try
             {
                 var token = await Authenticator.GetToken();
-                var uriBuilder = new UriBuilder($"{Constants.BaseApiUrl.TrimEnd('/')}/{Utility.Constants.TestConnectionPath.TrimStart('/')}");
+                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{Settings.PracticeId}/{Utility.Constants.TestConnectionPath.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
                 
                 var request = new HttpRequestMessage
@@ -41,7 +41,8 @@ namespace PluginAthenaHealth.API.Factory
                 };
 
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                
                 var response = await Client.SendAsync(request);
                 if (!response.IsSuccessStatusCode)
                 {

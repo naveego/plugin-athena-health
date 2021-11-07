@@ -41,9 +41,13 @@ namespace PluginAthenaHealth.Helper
 
         public string GetBaseAuthUrl()
         {
+            // return ProductionPractice
+            //     ? "https://{0}:{1}@api.platform.athenahealth.com/oauth2/v1/token"
+            //     : "https://{0}:{1}@api.preview.platform.athenahealth.com/oauth2/v1/token";
+            //
             return ProductionPractice
-                ? "https://{0}:{1}@api.platform.athenahealth.com/oauth2/v1/token"
-                : "https://{0}:{1}@api.preview.platform.athenahealth.com/oauth2/v1/token";
+                ? "https://api.platform.athenahealth.com/oauth2/v1/token"
+                : "https://api.preview.platform.athenahealth.com/oauth2/v1/token";
         }
     }
 }

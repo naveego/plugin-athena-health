@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Naveego.Sdk.Logging;
 using Newtonsoft.Json;
@@ -25,7 +26,9 @@ namespace PluginAthenaHealth.API.Factory
             Settings = settings;
             ExpiresAt = DateTime.Now;
             Token = "";
+            
             AuthUrl = string.Format(Settings.GetBaseAuthUrl(), Settings.ClientId, Settings.ClientSecret);
+            
         }
 
         public async Task<string> GetToken()
@@ -53,8 +56,16 @@ namespace PluginAthenaHealth.API.Factory
                     
                 var client = Client;
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            
-                var response = await Client.PostAsync(AuthUrl, body);
+
+                
+                var authenticationString = $"{Settings.ClientId}:{Settings.ClientSecret}";
+                var base64EncodedAuthenticationString =
+                    Convert.ToBase64String(Encoding.UTF8.GetBytes(authenticationString));
+                
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", base64EncodedAuthenticationString);
+                
+                var response = await client.PostAsync(Settings.GetBaseAuthUrl(), body);
                 response.EnsureSuccessStatusCode();
                     
                 var content = JsonConvert.DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
