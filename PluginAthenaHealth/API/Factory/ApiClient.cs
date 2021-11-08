@@ -31,7 +31,7 @@ namespace PluginAthenaHealth.API.Factory
             try
             {
                 var token = await Authenticator.GetToken();
-                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{Settings.PracticeId}/{Utility.Constants.TestConnectionPath.TrimStart('/')}");
+                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{Settings.PracticeId}/{Constants.TestConnectionPath.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
                 
                 var request = new HttpRequestMessage
@@ -61,7 +61,7 @@ namespace PluginAthenaHealth.API.Factory
             try
             {
                 var token = await Authenticator.GetToken();
-                var uriBuilder = new UriBuilder($"{Constants.BaseApiUrl.TrimEnd('/')}/{path.TrimStart('/')}");
+                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{path.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
                 
                 var request = new HttpRequestMessage
@@ -86,7 +86,7 @@ namespace PluginAthenaHealth.API.Factory
             try
             {
                 var token = await Authenticator.GetToken();
-                var uriBuilder = new UriBuilder($"{Constants.BaseApiUrl.TrimEnd('/')}/{path.TrimStart('/')}");
+                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{path.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
                 
                 var request = new HttpRequestMessage
@@ -112,7 +112,7 @@ namespace PluginAthenaHealth.API.Factory
             try
             {
                 var token = await Authenticator.GetToken();
-                var uriBuilder = new UriBuilder($"{Constants.BaseApiUrl.TrimEnd('/')}/{path.TrimStart('/')}");
+                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{path.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
                 
                 var request = new HttpRequestMessage
@@ -138,7 +138,7 @@ namespace PluginAthenaHealth.API.Factory
             try
             {
                 var token = await Authenticator.GetToken();
-                var uriBuilder = new UriBuilder($"{Constants.BaseApiUrl.TrimEnd('/')}/{path.TrimStart('/')}");
+                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{path.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
                 
                 var request = new HttpRequestMessage
@@ -164,7 +164,7 @@ namespace PluginAthenaHealth.API.Factory
             try
             {
                 var token = await Authenticator.GetToken();
-                var uriBuilder = new UriBuilder($"{Constants.BaseApiUrl.TrimEnd('/')}/{path.TrimStart('/')}");
+                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{path.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
                 
                 var request = new HttpRequestMessage

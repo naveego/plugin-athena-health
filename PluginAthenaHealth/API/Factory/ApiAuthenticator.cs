@@ -17,18 +17,13 @@ namespace PluginAthenaHealth.API.Factory
         private Settings Settings { get; set; }
         private string Token { get; set; }
         private DateTime ExpiresAt { get; set; }
-        
-        private readonly string AuthUrl = "";
-        
+
         public ApiAuthenticator(HttpClient client, Settings settings)
         {
             Client = client;
             Settings = settings;
             ExpiresAt = DateTime.Now;
             Token = "";
-            
-            AuthUrl = string.Format(Settings.GetBaseAuthUrl(), Settings.ClientId, Settings.ClientSecret);
-            
         }
 
         public async Task<string> GetToken()

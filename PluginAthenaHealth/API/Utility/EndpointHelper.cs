@@ -20,14 +20,7 @@ namespace PluginAthenaHealth.API.Utility
 
         static EndpointHelper()
         {
-            ContactsEndpointHelper.ContactsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            CompaniesEndpointHelper.CompaniesEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            DealsEndpointHelper.DealsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            EngagementsEndpointHelper.EngagementsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            FeedbackSubmissionsEndpointHelper.FeedbackSubmissionsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            LineItemsEndpointHelper.LineItemsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            ProductsEndpointHelper.ProductsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            TicketsEndpointHelper.TicketsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
+           
         }
 
         public static Dictionary<string, Endpoint> GetAllEndpoints()
@@ -61,7 +54,7 @@ namespace PluginAthenaHealth.API.Utility
 
         public virtual bool ShouldGetStaticSchema { get; set; } = false;
 
-        protected virtual string WritePathPropertyId { get; set; } = "hs_unique_creation_key";
+        protected virtual string WritePathPropertyId { get; set; } = "";
 
         protected virtual List<string> RequiredWritePropertyIds { get; set; } = new List<string>
         {
