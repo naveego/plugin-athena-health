@@ -48,19 +48,24 @@ namespace PluginAthenaHealth.API.Factory
                 };
 
                 var body = new FormUrlEncodedContent(formData);
-                    
-                var client = Client;
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(Settings.GetBaseAuthUrl()),
+                    Content = body
+                };
 
+                request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 
                 var authenticationString = $"{Settings.ClientId}:{Settings.ClientSecret}";
                 var base64EncodedAuthenticationString =
                     Convert.ToBase64String(Encoding.UTF8.GetBytes(authenticationString));
                 
-                client.DefaultRequestHeaders.Authorization =
+                request.Headers.Authorization =
                     new AuthenticationHeaderValue("Basic", base64EncodedAuthenticationString);
-                
-                var response = await client.PostAsync(Settings.GetBaseAuthUrl(), body);
+
+                var response = await Client.SendAsync(request);
                 response.EnsureSuccessStatusCode();
                     
                 var content = JsonConvert.DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
