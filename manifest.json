@@ -58,14 +58,12 @@
         "StartDate" : {
           "type": "string",
           "title": "Start Date",
-          "description": "Earliest data age to pull from",
-          "default": false
+          "description": "Earliest data age to pull from"
         },
         "EndDate" : {
           "type": "string",
           "title": "End Date",
-          "description": "Latest data age to pull from",
-          "default": false
+          "description": "Latest data age to pull from"
         }
       },
       "required": [
