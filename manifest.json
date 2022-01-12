@@ -23,7 +23,9 @@
         "ClientId",
         "ClientSecret",
         "PracticeId",
-        "ProductionPractice"
+        "ProductionPractice",
+        "StartDate",
+        "EndDate"
       ],
       "ClientSecret": {
         "ui:widget": "password"
@@ -70,7 +72,9 @@
         "PracticeId",
         "ClientId",
         "ClientSecret",
-        "ProductionPractice"
+        "ProductionPractice",
+        "StartDate",
+        "EndDate"
       ]
     }
   }
