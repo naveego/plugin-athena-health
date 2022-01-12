@@ -56,13 +56,13 @@
           "default": false
         },
         "StartDate" : {
-          "type": "boolean",
+          "type": "string",
           "title": "Start Date",
           "description": "Earliest data age to pull from",
           "default": false
         },
         "EndDate" : {
-          "type": "boolean",
+          "type": "string",
           "title": "End Date",
           "description": "Latest data age to pull from",
           "default": false
