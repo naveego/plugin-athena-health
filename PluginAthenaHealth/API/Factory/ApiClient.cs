@@ -1,6 +1,8 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Naveego.Sdk.Logging;
@@ -15,8 +17,10 @@ namespace PluginAthenaHealth.API.Factory
         private static HttpClient Client { get; set; }
         private Settings Settings { get; set; }
 
-        private const string ApiKeyParam = "hapikey";
-
+        public Settings GetSettings()
+        {
+            return Settings;
+        }
         public ApiClient(HttpClient client, Settings settings)
         {
             Authenticator = new ApiAuthenticator(client, settings);
@@ -44,6 +48,11 @@ namespace PluginAthenaHealth.API.Factory
                 request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 
                 var response = await Client.SendAsync(request);
+                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    //Pause until next midnight, API call reset at this moment
+                    throw new Exception("API reached maximum amount of calls per day. More calls available at midnight GMT.");
+                }
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new Exception(await response.Content.ReadAsStringAsync());
@@ -61,7 +70,7 @@ namespace PluginAthenaHealth.API.Factory
             try
             {
                 var token = await Authenticator.GetToken();
-                var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{path.TrimStart('/')}");
+                var uriBuilder = new UriBuilder(path);
                 var uri = new Uri(uriBuilder.ToString());
                 
                 var request = new HttpRequestMessage

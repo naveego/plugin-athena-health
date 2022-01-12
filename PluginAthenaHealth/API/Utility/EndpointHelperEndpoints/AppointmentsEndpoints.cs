@@ -19,6 +19,12 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
     {
         private class AppointmentsEndpoint : Endpoint
         {
+            public override bool ShouldGetStaticSchema { get; set; } = true;
+
+            public override Task<Schema> GetStaticSchemaAsync(IApiClient apiClient, Schema schema)
+            {
+                return base.GetStaticSchemaAsync(apiClient, schema);
+            }
         }
 
         public static readonly Dictionary<string, Endpoint> AppointmentsEndpoints = new Dictionary<string, Endpoint>
@@ -28,11 +34,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     Id = "AllAppointments",
                     Name = "All Appointments",
-                    BasePath = "/crm/v3/",
-                    AllPath = "/objects/Appointments",
-                    PropertiesPath = "/crm/v3/properties/Appointments",
-                    DetailPath = "/objects/Appointments/{0}",
-                    DetailPropertyId = "hs_unique_creation_key",
+                    BasePath = "/appointments/report",
+                    AllPath = "/appointments/report",
+                    PropertiesPath = "/appointments/report",
                     SupportedActions = new List<EndpointActions>
                     {
                         EndpointActions.Get

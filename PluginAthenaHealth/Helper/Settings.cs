@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace PluginAthenaHealth.Helper
 {
@@ -7,6 +9,8 @@ namespace PluginAthenaHealth.Helper
         public string PracticeId { get; set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
+        public string StartDate { get; set; }
+        public string EndDate { get; set; }
         public bool ProductionPractice { get; set; }
 
         /// <summary>
@@ -29,22 +33,47 @@ namespace PluginAthenaHealth.Helper
             {
                 throw new Exception("the PracticeId property must be set");
             }
+
+            var date_regex = new Regex(@"^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$");
+            
+            if (String.IsNullOrEmpty(StartDate))
+            {
+                throw new Exception("the StartDate property must be set");
+            }
+            if (!date_regex.IsMatch(StartDate))
+            {
+                throw new Exception("the StartDate property must be mm/dd/yyyy");
+            }
+            
+            if (string.IsNullOrEmpty(EndDate))
+            {
+                throw new Exception("the EndDate property must be set");
+            }
+            if (!date_regex.IsMatch(EndDate))
+            {
+                throw new Exception("the EndDate property must be mm/dd/yyyy");
+            }
         }
 
-        public string GetBaseUrl()
+        public string GetBaseUrl(bool includeVersion = true)
         {
-            return ProductionPractice
-                ? "https://api.platform.athenahealth.com/v1/"
-                : "https://api.preview.platform.athenahealth.com/v1/";
+            if(includeVersion)
+            {
+                return ProductionPractice
+                    ? "https://api.platform.athenahealth.com/v1/"
+                    : "https://api.preview.platform.athenahealth.com/v1/";
+            }
+            else
+            {
+                return ProductionPractice
+                    ? "https://api.platform.athenahealth.com/"
+                    : "https://api.preview.platform.athenahealth.com/";
+            }
         }
 
 
         public string GetBaseAuthUrl()
         {
-            // return ProductionPractice
-            //     ? "https://{0}:{1}@api.platform.athenahealth.com/oauth2/v1/token"
-            //     : "https://{0}:{1}@api.preview.platform.athenahealth.com/oauth2/v1/token";
-            //
             return ProductionPractice
                 ? "https://api.platform.athenahealth.com/oauth2/v1/token"
                 : "https://api.preview.platform.athenahealth.com/oauth2/v1/token";

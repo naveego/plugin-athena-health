@@ -5,7 +5,7 @@
   "apiVersion": "2",
   "versionDescription": "Version 2",
   "version": "2.0.0",
-  "iconFile": "icon.jpg",
+  "iconFile": "icon.png",
   "executable": "PluginAthenaHealth",
   "kind": "publisher",
   "os": "$GOOS",
@@ -15,6 +15,8 @@
   "canAcceptQueryBasedSchemas": false,
   "canUseOAuth": false,
   "canWrite": true,
+  "canConfigureWrite": true,
+  "accessGroups": ["dari"],
   "configSchema": {
     "ui": {
       "ui:order": [
@@ -49,6 +51,18 @@
           "type": "boolean",
           "title": "Production Practice",
           "description": "Is this a production practice?",
+          "default": false
+        },
+        "StartDate" : {
+          "type": "boolean",
+          "title": "Start Date",
+          "description": "Earliest data age to pull from",
+          "default": false
+        },
+        "EndDate" : {
+          "type": "boolean",
+          "title": "End Date",
+          "description": "Latest data age to pull from",
           "default": false
         }
       },

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -66,6 +67,10 @@ namespace PluginAthenaHealth.API.Factory
                     new AuthenticationHeaderValue("Basic", base64EncodedAuthenticationString);
 
                 var response = await Client.SendAsync(request);
+                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                {
+                    throw new Exception(response.ReasonPhrase);
+                }
                 response.EnsureSuccessStatusCode();
                     
                 var content = JsonConvert.DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());

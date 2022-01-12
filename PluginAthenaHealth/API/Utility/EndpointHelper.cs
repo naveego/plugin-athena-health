@@ -20,7 +20,11 @@ namespace PluginAthenaHealth.API.Utility
 
         static EndpointHelper()
         {
-           
+            //AppointmentsEndpointHelper.AppointmentsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
+            PatientsEndpointHelper.PatientsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
+            BookedAppointmentsEndpointHelper.BookedAppointmentsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
+            PatientChartsEndpointHelper.PatientChartsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
+            PatientBalancesEndpointHelper.PatientBalancesEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
         }
 
         public static Dictionary<string, Endpoint> GetAllEndpoints()
@@ -63,11 +67,11 @@ namespace PluginAthenaHealth.API.Utility
 
         public List<EndpointActions> SupportedActions { get; set; } = new List<EndpointActions>();
 
-        public virtual Task<Count> GetCountOfRecords(IApiClient apiClient)
+        public async virtual Task<Count> GetCountOfRecords(IApiClient apiClient)
         {
-            return Task.FromResult(new Count
+            return await Task.FromResult(new Count
             {
-                Kind = Count.Types.Kind.Unavailable,
+                Kind = Count.Types.Kind.Unavailable
             });
         }
 

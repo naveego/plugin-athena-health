@@ -25,7 +25,9 @@ namespace PluginAthenaHealthTest.Plugin
                 ClientId = "",
                 ClientSecret = "",
                 PracticeId = "",
-                ProductionPractice = false
+                ProductionPractice = false,
+                StartDate = "",
+                EndDate = ""
             };
         }
 
@@ -44,7 +46,7 @@ namespace PluginAthenaHealthTest.Plugin
         private Schema GetTestSchema(string endpointId = null, string id = "test", string name = "test")
         {
             Endpoint endpoint = endpointId == null
-                ? EndpointHelper.GetEndpointForId("AllContacts")
+                ? EndpointHelper.GetEndpointForId("AllBookedAppointments")
                 : EndpointHelper.GetEndpointForId(endpointId);
 
 
@@ -156,7 +158,7 @@ namespace PluginAthenaHealthTest.Plugin
 
             // assert
             Assert.IsType<DiscoverSchemasResponse>(response);
-            Assert.Equal(8, response.Schemas.Count);
+            Assert.Equal(3, response.Schemas.Count);
             //
             // var schema = response.Schemas[0];
             // Assert.Equal($"cclf1", schema.Id);
@@ -217,7 +219,9 @@ namespace PluginAthenaHealthTest.Plugin
                 SampleSize = 10,
                 ToRefresh =
                 {
-                    GetTestSchema("ActiveSubscribers")
+                    // GetTestSchema("PatientBalances") //good
+                    // GetTestSchema("AllBookedAppointments")
+                    GetTestSchema("AllPatients")
                 }
             };
 
@@ -227,22 +231,22 @@ namespace PluginAthenaHealthTest.Plugin
 
             // assert
             Assert.IsType<DiscoverSchemasResponse>(response);
-            // Assert.Equal(1, response.Schemas.Count);
+            Assert.Equal(1, response.Schemas.Count);
             //
-            // var schema = response.Schemas[0];
-            // Assert.Equal("test", schema.Id);
-            // Assert.Equal("test", schema.Name);
-            // Assert.Equal("", schema.Query);
-            // Assert.Equal(10, schema.Sample.Count);
-            // Assert.Equal(17, schema.Properties.Count);
-            //
-            // var property = schema.Properties[0];
-            // Assert.Equal("field1", property.Id);
-            // Assert.Equal("field1", property.Name);
-            // Assert.Equal("", property.Description);
-            // Assert.Equal(PropertyType.String, property.Type);
-            // Assert.False(property.IsKey);
-            // Assert.True(property.IsNullable);
+            var schema = response.Schemas[0];
+            Assert.Equal("test", schema.Id);
+            Assert.Equal("test", schema.Name);
+            Assert.Equal("", schema.Query);
+            Assert.Equal(10, schema.Sample.Count);
+            Assert.Equal(93, schema.Properties.Count);
+            
+            var property = schema.Properties[0];
+            Assert.Equal("appointmentid", property.Id);
+            Assert.Equal("appointmentid", property.Name);
+            Assert.Equal("", property.Description);
+            Assert.Equal(PropertyType.String, property.Type);
+            Assert.True(property.IsKey);
+            Assert.False(property.IsNullable);
 
             // cleanup
             await channel.ShutdownAsync();
@@ -265,7 +269,7 @@ namespace PluginAthenaHealthTest.Plugin
             var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
             var client = new Publisher.PublisherClient(channel);
 
-            var schema = GetTestSchema();
+            var schema = GetTestSchema("PatientBalances");
 
             var connectRequest = GetConnectSettings();
 
@@ -299,13 +303,13 @@ namespace PluginAthenaHealthTest.Plugin
             }
 
             // assert
-            Assert.Equal(1002, records.Count);
+            Assert.Equal(1712, records.Count);
 
             var record = JsonConvert.DeserializeObject<Dictionary<string, object>>(records[0].DataJson);
-            Assert.Equal("Brisbane", record["city"]);
-            Assert.Equal("HubSpot", record["company"]);
-            Assert.Equal("Maria", record["firstname"]);
-            Assert.Equal("", record["work_email"]);
+            Assert.Equal("3101903", record["appointmentid"]);
+            Assert.Equal(false, record["coordinatorenterprise"]);
+            Assert.Equal("API-22129", record["scheduledby"]);
+            Assert.Equal("05/11/2020", record["patient.registrationdate"]);
 
             // cleanup
             await channel.ShutdownAsync();
@@ -369,7 +373,46 @@ namespace PluginAthenaHealthTest.Plugin
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
         }
+        [Fact]
+        public async Task ConfigureWriteTest()
+        {
+            // setup
+            Server server = new Server
+            {
+                Services = {Publisher.BindService(new PluginAthenaHealth.Plugin.Plugin())},
+                Ports = {new ServerPort("localhost", 0, ServerCredentials.Insecure)}
+            };
+            server.Start();
 
+            var port = server.Ports.First().BoundPort;
+
+            var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
+            var client = new Publisher.PublisherClient(channel);
+
+            var connectRequest = GetConnectSettings();
+
+            var request = new ConfigureWriteRequest
+            {
+                Form = new ConfigurationFormRequest
+                {
+                    DataJson = JsonConvert.SerializeObject(new ConfigureWriteFormData
+                    {
+                       // StoredProcedure = "\"public\".\"INSERT_ACTOR\""
+                    })
+                }
+            };
+
+            // act
+            client.Connect(connectRequest);
+            var response = client.ConfigureWrite(request);
+
+            // assert
+            Assert.IsType<ConfigureWriteResponse>(response);
+
+            // cleanup
+            await channel.ShutdownAsync();
+            await server.ShutdownAsync();
+        }
         [Fact]
         public async Task WriteTest()
         {
@@ -386,7 +429,7 @@ namespace PluginAthenaHealthTest.Plugin
             var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
             var client = new Publisher.PublisherClient(channel);
 
-            var schema = GetTestSchema("UpsertCompanies");
+            var schema = GetTestSchema("PatientCharts");
 
             var connectRequest = GetConnectSettings();
 
@@ -404,16 +447,11 @@ namespace PluginAthenaHealthTest.Plugin
                         Action = Record.Types.Action.Upsert,
                         CorrelationId = "test",
                         RecordId = "record1",
-                        DataJson = "{\"createdate\":\"2021-05-06T16:55:49.689Z\",\"domain\":\"sample.com\",\"hs_lastmodifieddate\":\"2021-05-06T16:56:10.131Z\",\"hs_object_id\":\"6021949042\",\"name\":\"Updated Sample Company\",\"hs_unique_creation_key\":\"6021949042\"}",
-                    }
-                },
-                {
-                    new Record
-                    {
-                        Action = Record.Types.Action.Upsert,
-                        CorrelationId = "test",
-                        RecordId = "record2",
-                        DataJson = "{\"domain\":\"newsample.com\",\"name\":\"New Sample Company\"}",
+                        DataJson = $"{{\"patientid\":\"571025\"," +
+                                   $"\"appointmentid\":\"1111\"," +
+                                   $"\"practiceid\":{GetSettings().PracticeId}, " +
+                                   $"\"departmentid\":\"67\"," +
+                                   $"\"documentsubclass\":\"CLINICALDOCUMENT\"}}", //appointmentid is ph
                     }
                 }
             };
@@ -460,7 +498,7 @@ namespace PluginAthenaHealthTest.Plugin
             }
 
             // assert
-            Assert.Equal(2, recordAcks.Count);
+            Assert.Equal(1, recordAcks.Count);
             Assert.Equal("", recordAcks[0].Error);
             Assert.Equal("test", recordAcks[0].CorrelationId);
 

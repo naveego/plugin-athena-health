@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Google.Cloud.Storage.V1" Version="3.5.0" />
       <PackageReference Include="Naveego.Sdk" Version="1.2.2" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
       <PackageReference Include="System.Linq.Async" Version="4.0.0" />
@@ -23,7 +24,24 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="API\Write" />
+      <Compile Remove="plugin-athena-health - 11.30\**" />
+      <Compile Remove="plugin-athena-health - configure writeback\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="plugin-athena-health - 11.30\**" />
+      <EmbeddedResource Remove="plugin-athena-health - configure writeback\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="plugin-athena-health - 11.30\**" />
+      <None Remove="plugin-athena-health - configure writeback\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\icon.png">
+        <Link>plugin-athena-health - configure writeback\icon.png</Link>
+      </Content>
     </ItemGroup>
 
     <Target Name="ZipWindows" AfterTargets="Publish" Condition="$(Configuration) == 'Release' And Exists('$(MSBuildProjectDirectory)\bin\Release\netcoreapp3.1\win-x64\publish')">

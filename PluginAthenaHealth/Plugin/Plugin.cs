@@ -334,6 +334,70 @@ namespace PluginAthenaHealth.Plugin
                 Logger.Error(e, e.Message, context);
             }
         }
+/// <summary>
+        /// Creates a form and handles form updates for write backs
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public override async Task<ConfigureWriteResponse> ConfigureWrite(ConfigureWriteRequest request,
+            ServerCallContext context)
+        {
+            Logger.Info("Configuring write...");
+
+            var schemaJson = Write.GetSchemaJson();
+            var uiJson = Write.GetUIJson();
+
+            // if first call 
+            if (string.IsNullOrWhiteSpace(request.Form.DataJson) || request.Form.DataJson == "{}")
+            {
+                return new ConfigureWriteResponse
+                {
+                    Form = new ConfigurationFormResponse
+                    {
+                        DataJson = "",
+                        DataErrorsJson = "",
+                        Errors = { },
+                        SchemaJson = schemaJson,
+                        UiJson = uiJson,
+                        StateJson = ""
+                    },
+                    Schema = null
+                };
+            }
+
+            try
+            {
+                return new ConfigureWriteResponse
+                {
+                    Form = new ConfigurationFormResponse
+                    {
+                        DataJson = request.Form.DataJson,
+                        Errors = { },
+                        SchemaJson = schemaJson,
+                        UiJson = uiJson,
+                        StateJson = request.Form.StateJson
+                    },
+                    //Schema = schema
+                };
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, e.Message, context);
+                return new ConfigureWriteResponse
+                {
+                    Form = new ConfigurationFormResponse
+                    {
+                        DataJson = request.Form.DataJson,
+                        Errors = {e.Message},
+                        SchemaJson = schemaJson,
+                        UiJson = uiJson,
+                        StateJson = request.Form.StateJson
+                    },
+                    Schema = null
+                };
+            }
+        }
 
         /// <summary>
         /// Prepares writeback settings to write to Campaigner
@@ -355,7 +419,6 @@ namespace PluginAthenaHealth.Plugin
                 Replication = request.Replication,
                 DataVersions = request.DataVersions,
             };
-
             _server.WriteConfigured = true;
 
             Logger.Debug(JsonConvert.SerializeObject(_server.WriteSettings, Formatting.Indented));
@@ -375,7 +438,7 @@ namespace PluginAthenaHealth.Plugin
         {
             try
             {
-                Logger.Info("Writing records to Campaigner...");
+                Logger.Info("Writing records to Athena...");
 
                 var schema = _server.WriteSettings.Schema;
                 var inCount = 0;
@@ -404,7 +467,7 @@ namespace PluginAthenaHealth.Plugin
                     }
                 }
 
-                Logger.Info($"Wrote {inCount} records to Campaigner.");
+                Logger.Info($"Wrote {inCount} records to Athena.");
             }
             catch (Exception e)
             {
