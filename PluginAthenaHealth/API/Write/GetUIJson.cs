@@ -16,17 +16,6 @@ namespace PluginAthenaHealth.API.Write
                 }}
             };
             return JsonConvert.SerializeObject(uiJsonObj);
-            // var uiJsonObj = $@"{{
-            //     ""ui:order"": [
-            //         ""FileStorageMethod"",
-            //         ""LocalPath"",
-            //         ""GoogleCloudStorageCredentialPath"".
-            //         ""GoogleCloudStorageBucket"".
-            //         ""GoogleCloudStorageDownloadPath""
-            //     ]
-            // }}";
-            //
-            // return uiJsonObj;
         }
     }
 }
