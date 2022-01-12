@@ -41,6 +41,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "documentsubclass",
                     "entityid",
                     "entitytype",
+                    "fileName",
                     "internalnote",
                     "originalfilename",
                     
@@ -83,6 +84,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                         //strings
                         case("entityid"):
+                        case("fileName"):
                         case("attachmentcontents"):
                         case("actionnote"):
                         case("attachmenttype"):
