@@ -21,19 +21,18 @@ namespace PluginAthenaHealth.Plugin
 {
     public class Plugin : Publisher.PublisherBase
     {
-        private readonly ServerStatus _server;
+        //private readonly ServerStatus _server;
         private TaskCompletionSource<bool> _tcs;
         private readonly IApiClientFactory _apiClientFactory;
         private IApiClient _apiClient;
 
+
         public Plugin(HttpClient client = null)
         {
             _apiClientFactory = new ApiClientFactory(client ?? new HttpClient());
-            _server = new ServerStatus
-            {
-                Connected = false,
-                WriteConfigured = false
-            };
+            
+            ServerStatus.Connected = false;
+            ServerStatus.WriteConfigured = false;
         }
 
         /// <summary>
@@ -56,8 +55,8 @@ namespace PluginAthenaHealth.Plugin
             Logger.SetLogLevel(request.LogLevel);
             Logger.Init(request.LogDirectory);
 
-            _server.Config = request;
-
+            ServerStatus.Config = request;
+            
             return Task.FromResult(new ConfigureResponse());
         }
 
@@ -97,8 +96,8 @@ namespace PluginAthenaHealth.Plugin
             // validate settings passed in
             try
             {
-                _server.Settings = JsonConvert.DeserializeObject<Settings>(request.SettingsJson);
-                _server.Settings.Validate();
+                ServerStatus.Settings = JsonConvert.DeserializeObject<Settings>(request.SettingsJson);
+                ServerStatus.Settings.Validate();
             }
             catch (Exception e)
             {
@@ -115,7 +114,7 @@ namespace PluginAthenaHealth.Plugin
             // get api client
             try
             {
-                _apiClient = _apiClientFactory.CreateApiClient(_server.Settings);
+                _apiClient = _apiClientFactory.CreateApiClient(ServerStatus.Settings);
             }
             catch (Exception e)
             {
@@ -147,7 +146,7 @@ namespace PluginAthenaHealth.Plugin
                 };
             }
 
-            _server.Connected = true;
+            ServerStatus.Connected = true;
 
             return new ConnectResponse
             {
@@ -202,7 +201,7 @@ namespace PluginAthenaHealth.Plugin
                 // get all schemas
                 try
                 {
-                    var schemas = Discover.GetAllSchemas(_apiClient, _server.Settings, sampleSize);
+                    var schemas = Discover.GetAllSchemas(_apiClient, ServerStatus.Settings, sampleSize);
 
                     discoverSchemasResponse.Schemas.AddRange(await schemas.ToListAsync());
 
@@ -316,7 +315,7 @@ namespace PluginAthenaHealth.Plugin
                     await foreach (var record in records)
                     {
                         // stop publishing if the limit flag is enabled and the limit has been reached or the server is disconnected
-                        if (limitFlag && recordsCount == limit || !_server.Connected)
+                        if (limitFlag && recordsCount == limit || !ServerStatus.Connected)
                         {
                             break;
                         }
@@ -410,18 +409,18 @@ namespace PluginAthenaHealth.Plugin
         {
             Logger.SetLogPrefix(request.DataVersions.JobId);
             Logger.Info("Preparing write...");
-            _server.WriteConfigured = false;
+            ServerStatus.WriteConfigured = false;
 
-            _server.WriteSettings = new WriteSettings
+            ServerStatus.WriteSettings = new WriteSettings
             {
                 CommitSLA = request.CommitSlaSeconds,
                 Schema = request.Schema,
                 Replication = request.Replication,
                 DataVersions = request.DataVersions,
             };
-            _server.WriteConfigured = true;
+            ServerStatus.WriteConfigured = true;
 
-            Logger.Debug(JsonConvert.SerializeObject(_server.WriteSettings, Formatting.Indented));
+            Logger.Debug(JsonConvert.SerializeObject(ServerStatus.WriteSettings, Formatting.Indented));
             Logger.Info("Write prepared.");
             return new PrepareWriteResponse();
         }
@@ -440,19 +439,19 @@ namespace PluginAthenaHealth.Plugin
             {
                 Logger.Info("Writing records to Athena...");
 
-                var schema = _server.WriteSettings.Schema;
+                var schema = ServerStatus.WriteSettings.Schema;
                 var inCount = 0;
 
                 // get next record to publish while connected and configured
-                while (await requestStream.MoveNext(context.CancellationToken) && _server.Connected &&
-                       _server.WriteConfigured)
+                while (await requestStream.MoveNext(context.CancellationToken) && ServerStatus.Connected &&
+                       ServerStatus.WriteConfigured)
                 {
                     var record = requestStream.Current;
                     inCount++;
 
                     Logger.Debug($"Got record: {record.DataJson}");
 
-                    if (_server.WriteSettings.IsReplication())
+                    if (ServerStatus.WriteSettings.IsReplication())
                     {
                         throw new System.NotSupportedException();
                     }
@@ -484,8 +483,8 @@ namespace PluginAthenaHealth.Plugin
         public override Task<DisconnectResponse> Disconnect(DisconnectRequest request, ServerCallContext context)
         {
             // clear connection
-            _server.Connected = false;
-            _server.Settings = null;
+            ServerStatus.Connected = false;
+            ServerStatus.Settings = null;
 
             // alert connection session to close
             if (_tcs != null)

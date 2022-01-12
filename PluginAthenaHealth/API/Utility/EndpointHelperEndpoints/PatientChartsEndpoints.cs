@@ -176,6 +176,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     
                     var appointmentId = recordMap["appointmentid"] ?? "";
                     
+                    
                     //could be needed in future 
                     // var documentSubclass = recordMap["documentsubclass"] ?? ""; 
                     // var departmentId = recordMap["departmentid"] ?? "";

@@ -122,7 +122,7 @@ namespace PluginAthenaHealth.DataContracts
     public class Provider
     {
         [JsonProperty("providerid")]
-        public int ProviderId { get; set; }
+        public long ProviderId { get; set; }
     }
 
     public class PatientAppointmentReasons

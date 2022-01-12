@@ -58,12 +58,12 @@
         "StartDate" : {
           "type": "string",
           "title": "Start Date",
-          "description": "Earliest data age to pull from"
+          "description": "Booked Appointments pull starting from this date"
         },
         "EndDate" : {
           "type": "string",
           "title": "End Date",
-          "description": "Latest data age to pull from"
+          "description": "Booked Appointments stop pulling after this date"
         }
       },
       "required": [

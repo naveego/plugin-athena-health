@@ -332,7 +332,7 @@ namespace PluginAthenaHealthTest.Plugin
             var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
             var client = new Publisher.PublisherClient(channel);
 
-            var schema = GetTestSchema();
+            var schema = GetTestSchema("PatientBalances");
 
             var connectRequest = GetConnectSettings();
 

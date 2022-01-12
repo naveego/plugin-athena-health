@@ -2,12 +2,12 @@ using Naveego.Sdk.Plugins;
 
 namespace PluginAthenaHealth.Helper
 {
-    public class ServerStatus
+    public static class ServerStatus
     {
-        public ConfigureRequest Config { get; set; }
-        public Settings Settings { get; set; }
-        public bool Connected { get; set; }
-        public WriteSettings WriteSettings { get; set; }
-        public bool WriteConfigured { get; set; }
+        public static ConfigureRequest Config { get; set; }
+        public static Settings Settings { get; set; }
+        public static bool Connected { get; set; }
+        public static WriteSettings WriteSettings { get; set; }
+        public static bool WriteConfigured { get; set; }
     }
 }

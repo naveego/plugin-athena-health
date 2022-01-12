@@ -112,67 +112,108 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     JsonConvert.DeserializeObject<DepartmentResponse>(
                         await departmentResult.Content.ReadAsStringAsync());
 
-                foreach (var department in departmentResponse.Departments)
+                var providerPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/providers";
+                var providerResult = await apiClient.GetAsync(providerPath);
+                
+                if (providerResult.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    var recordMap = new Dictionary<string, object>();
+                    throw new Exception(providerResult.ReasonPhrase);
+                }
+                
+                var providerResponse =
+                    JsonConvert.DeserializeObject<ProviderResponse>(
+                        await providerResult.Content.ReadAsStringAsync());
 
-                    var patientPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/?departmentid={department.DepartmentId}";
-                    
-                    var patientResult = await apiClient.GetAsync(patientPath);
-                    if (patientResult.StatusCode == HttpStatusCode.TooManyRequests)
+                foreach (var provider in providerResponse.Providers)
+                {
+                    foreach (var department in departmentResponse.Departments)
                     {
-                        throw new Exception(patientResult.ReasonPhrase);
-                    }
+                        var recordMap = new Dictionary<string, object>();
 
-                    if (!patientResult.IsSuccessStatusCode)
-                    {
-                        try
+                        var patientPath =
+                            $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients?departmentid={department.DepartmentId.ToString()}&primaryproviderid={provider.ProviderId.ToString()}";
+                        var hasMore = false;
+                        do
                         {
-                            var errorResponse =
-                                JsonConvert.DeserializeObject<Error>(
-                                    await patientResult.Content.ReadAsStringAsync());
-                                    
-                            throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage) ? 
-                                patientResult.Content.ReadAsStringAsync().ToString() : errorResponse.ErrorMessage);
-                        }
-                        catch
-                        {
-                            throw new Exception(patientResult.Content.ReadAsStringAsync().ToString());
-                        }
-                    }
-
-                    var patientResponses = new PatientResponseWrapper();
-                    do
-                    {
-                        patientResponses =
-                            JsonConvert.DeserializeObject<PatientResponseWrapper>(
-                                await patientResult.Content.ReadAsStringAsync());
-                    
-                        if (patientResponses.Patients.Count > 0)
-                        {
-                            foreach (var patient in patientResponses.Patients)
+                            var patientResult = await apiClient.GetAsync(patientPath);
+                            if (patientResult.StatusCode == HttpStatusCode.TooManyRequests)
                             {
-                                int balance_no = 0;
-                                foreach (var balance in patient.Balances)
+                                throw new Exception(patientResult.ReasonPhrase);
+                            }
+                            
+                            if (!patientResult.IsSuccessStatusCode)
+                            {
+                                try
                                 {
-                                    recordMap["patientid"] = patient.Patientid.ToString();
-                                    recordMap["balanceid"] = balance_no.ToString();
-                                    recordMap["cleanbalance"] = balance.Cleanbalance;
-                                    recordMap["departmentlist"] = balance.Departmentlist.ToString() ?? "";
-                                    recordMap["providergroupid"] = balance.Providergroupid;
-                                    recordMap["balance"] = balance.BalanceBalance.ToString( ) ?? "0.0";
-
-                                    balance_no++;
+                                    var errorResponse =
+                                        JsonConvert.DeserializeObject<Error>(
+                                            await patientResult.Content.ReadAsStringAsync());
                                     
-                                    yield return new Record
+                                    if (errorResponse.ErrorMessage ==
+                                        "The given search parameters would produce a total data set larger than 1000 records.  Please refine your search and try again.")
                                     {
-                                        Action = Record.Types.Action.Upsert,
-                                        DataJson = JsonConvert.SerializeObject(recordMap)
-                                    }; 
+                                        Logger.Info("Missing patient records due to 1000 data set limit per query.");
+                                        continue;
+                                    }
+
+                                    if (errorResponse.ErrorMessage == "The requested ID does not exist.")
+                                    {
+                                        continue;
+                                    }
+                                    
+                                    throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage)
+                                        ? patientResult.Content.ReadAsStringAsync().ToString()
+                                        : errorResponse.ErrorMessage);
+                                }
+                                catch
+                                {
+                                    throw new Exception(patientResult.Content.ReadAsStringAsync().ToString());
                                 }
                             }
-                        }
-                    } while (!string.IsNullOrWhiteSpace(patientResponses.Next));
+                            
+                            var patientResponse =
+                                JsonConvert.DeserializeObject<PatientResponseWrapper>(
+                                    await patientResult.Content.ReadAsStringAsync());
+
+                            if (patientResponse.Patients.Count > 0)
+                            {
+                                foreach (var patient in patientResponse.Patients)
+                                {
+                                    int balance_no = 0;
+                                    foreach (var balance in patient.Balances)
+                                    {
+                                        recordMap["patientid"] = patient.Patientid.ToString();
+                                        recordMap["balanceid"] = balance_no.ToString();
+                                        recordMap["cleanbalance"] = balance.Cleanbalance;
+                                        recordMap["departmentlist"] = balance.Departmentlist.ToString() ?? "";
+                                        recordMap["providergroupid"] = balance.Providergroupid;
+                                        recordMap["balance"] = balance.BalanceBalance.ToString() ?? "0.0";
+
+                                        balance_no++;
+
+                                        yield return new Record
+                                        {
+                                            Action = Record.Types.Action.Upsert,
+                                            DataJson = JsonConvert.SerializeObject(recordMap)
+                                        };
+                                    }
+                                }
+                            }
+
+                            if (string.IsNullOrWhiteSpace(patientResponse.Next))
+                            {
+                                hasMore = false;
+                            }
+                            else
+                            {
+                                hasMore = true;
+
+                                var next = patientResponse.Next.Substring(4); //trim version
+                                patientPath = $"{settings.GetBaseUrl().TrimEnd('\\')}{next}";
+                            }
+                            
+                        } while (hasMore);
+                    }
                 }
             }
         }

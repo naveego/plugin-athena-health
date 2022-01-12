@@ -46,7 +46,7 @@ namespace PluginAthenaHealth.API.Write
                 
                 // write records
                 var errorMessage = await endpoint.WriteRecordAsync(apiClient, schema, record, responseStream);
-
+                
                 if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
                     Logger.Error(new Exception(errorMessage), errorMessage);

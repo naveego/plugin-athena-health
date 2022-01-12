@@ -65,13 +65,13 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     foreach (var department in departmentResponse.Departments)
                     {
-                        var patientsPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId.TrimEnd('/')}{BasePath}?departmentid={department.DepartmentId}&primaryproviderid={provider.ProviderId}";
+                        var patientPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId.TrimEnd('/')}{BasePath}?departmentid={department.DepartmentId.ToString()}&primaryproviderid={provider.ProviderId.ToString()}";
 
                         var hasMore = false;
                         do
                         {
                             
-                            var patientResult = await apiClient.GetAsync(patientsPath);
+                            var patientResult = await apiClient.GetAsync(patientPath);
                             
                             if (patientResult.StatusCode == HttpStatusCode.TooManyRequests)
                             {
@@ -89,7 +89,13 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                     if (errorResponse.ErrorMessage ==
                                         "The given search parameters would produce a total data set larger than 1000 records.  Please refine your search and try again.")
                                     {
-                                        throw new Exception("Patient Err: The given search parameters would produce a total data set larger than 1000 records.  Please refine your search and try again.");
+                                        Logger.Info("Missing patient records due to 1000 data set limit per query.");
+                                        continue;
+                                    }
+                                    
+                                    if (errorResponse.ErrorMessage == "The requested ID does not exist.")
+                                    {
+                                        continue;
                                     }
                                 }
                                 catch
@@ -200,6 +206,18 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                     DataJson = JsonConvert.SerializeObject(recordMap)
                                 };
                             }
+
+                            if (string.IsNullOrWhiteSpace(patientResponse.Next))
+                            {
+                                hasMore = false;
+                            }
+                            else
+                            {
+                                hasMore = true;
+                                var next = patientResponse.Next.Substring(4); //trim version
+                                patientPath = $"{settings.GetBaseUrl().TrimEnd('\\')}{next}";
+                            }
+                            
                         } while (hasMore);
                     }
                 }

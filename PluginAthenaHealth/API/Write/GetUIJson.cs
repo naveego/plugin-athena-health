@@ -13,7 +13,6 @@ namespace PluginAthenaHealth.API.Write
                 {
                     "FileStorageMethod",
                     "GoogleCloudStorageCredentialPath",
-                    "GoogleCloudStorageDownloadPath"
                 }}
             };
             return JsonConvert.SerializeObject(uiJsonObj);

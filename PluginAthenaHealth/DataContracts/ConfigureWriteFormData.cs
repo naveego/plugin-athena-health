@@ -5,6 +5,6 @@
         public string StorageType { get; set; }
         
         public string GoogleCloudStorageCredentialPath { get; set; }
-        public string GoogleCloudStorageDownloadPath { get; set; }
+        
     }
 }
