@@ -20,10 +20,9 @@ namespace PluginAthenaHealth.API.Utility
 
         static EndpointHelper()
         {
-            //AppointmentsEndpointHelper.AppointmentsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
             PatientsEndpointHelper.PatientsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
             BookedAppointmentsEndpointHelper.BookedAppointmentsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            PatientChartsEndpointHelper.PatientChartsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
+            //PatientChartsEndpointHelper.PatientChartsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value)); //ConfigureWrite
             PatientBalancesEndpointHelper.PatientBalancesEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
         }
 
