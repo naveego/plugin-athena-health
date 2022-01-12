@@ -42,6 +42,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "entityid",
                     "entitytype",
                     "fileName",
+                    "GCSBucket",
+                    "localFilePath",
                     "internalnote",
                     "originalfilename",
                     
@@ -85,6 +87,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         //strings
                         case("entityid"):
                         case("fileName"):
+                        case("GCSBucket"):
+                        case("localFilePath"):
                         case("attachmentcontents"):
                         case("actionnote"):
                         case("attachmenttype"):
@@ -167,6 +171,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     var patientId = recordMap["patientid"] ?? "";
                     var fileName = recordMap["fileName"] ?? "";
                     
+                    var localFilePath = recordMap["localFilePath"] ?? "";
+                    var GCSBucket = recordMap["GCSBucket"] ?? "";
+                    
                     var appointmentId = recordMap["appointmentid"] ?? "";
                     
                     //could be needed in future 
@@ -181,14 +188,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     }
                     
                     var postPath = $"{BasePath.TrimEnd('/')}/{settings.PracticeId}/{patientId}/clinicaldocument?practiceid={settings.PracticeId}&Content-Type=application/pdf";
-
-                    
                     var configureWriteSettings = JsonConvert.DeserializeObject<ConfigureWriteFormData>(schema.PublisherMetaJson);
-
+                    
                     var fileFactory = new FileFactory(configureWriteSettings);
-
-                    var file = fileFactory.CreateFile(fileName.ToString());
-
+                    var file = fileFactory.CreateFile(fileName.ToString(), localFilePath.ToString(), GCSBucket.ToString());
                     var fileBase64 = file.GetBase64String();
                     
                     postObject.TryAdd("attachmentcontents", fileBase64);

@@ -20,23 +20,11 @@ namespace PluginAthenaHealth.API.Write
                         {"description", "The storage method of the patient charts"},
                         {"enum", new []{Constants.Local, Constants.GoogleCloudStorage}}
                     }},
-                    {"LocalPath", new Dictionary<string, object>
-                    {
-                        {"type", "string"},
-                        {"title", "Local Path"},
-                        {"description", "If using local storage, enter the path to the directory containing patient charts"}
-                    }},
                     {"GoogleCloudStorageCredentialPath", new Dictionary<string, object>
                     {
                         {"type", "string"},
                         {"title", "Google Cloud Storage Credential Path"},
                         {"description", "If using GCS, enter the path to the credentials key file"}
-                    }},
-                    {"GoogleCloudStorageBucket", new Dictionary<string, object>
-                    {
-                        {"type", "string"},
-                        {"title", "Google Cloud Storage Bucket"},
-                        {"description", "If using GCS, enter the name of the bucket being used"}
                     }},
                     {"GoogleCloudStorageDownloadPath", new Dictionary<string, object>
                     {

@@ -12,9 +12,7 @@ namespace PluginAthenaHealth.API.Write
                 {"ui:order", new []
                 {
                     "FileStorageMethod",
-                    "LocalPath",
                     "GoogleCloudStorageCredentialPath",
-                    "GoogleCloudStorageBucket",
                     "GoogleCloudStorageDownloadPath"
                 }}
             };

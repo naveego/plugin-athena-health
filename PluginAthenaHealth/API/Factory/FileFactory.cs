@@ -22,25 +22,25 @@ namespace PluginAthenaHealth.API.Factory
             ConfigureWriteFormData = configureWriteFormData;
         }
         
-        public IFile CreateFile(string fileName)
+        public IFile CreateFile(string fileName, string filePath = "", string GCSBucket = "")
         {
             if (ConfigureWriteFormData.StorageType == Constants.Local)
             {
-                var filePath = $"{ConfigureWriteFormData.LocalPath}\\{fileName}"; 
+                var fullFilePath = $"{filePath}\\{fileName}"; 
         
-                if (!File.Exists(filePath))
+                if (!File.Exists(fullFilePath))
                 {
-                    throw new Exception($"Failed to discover file expected at {filePath}");
+                    throw new Exception($"Failed to discover file expected at {fullFilePath}");
                 }
                         
-                return new FileByteArray(File.ReadAllBytes(filePath));
+                return new FileByteArray(File.ReadAllBytes(fullFilePath));
             }
             else //configureWrite == gcs
             {
         
                 var storage = StorageClient.Create(GoogleCredential.FromFile(ConfigureWriteFormData.GoogleCloudStorageCredentialPath));
                 var outputFile = File.OpenWrite(ConfigureWriteFormData.GoogleCloudStorageDownloadPath);
-                storage.DownloadObjectAsync(ConfigureWriteFormData.GoogleCloudStorageBucket,
+                storage.DownloadObjectAsync(GCSBucket,
                     fileName,
                     outputFile);
                         
