@@ -65,14 +65,6 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.TypeAtSource = "boolean";
                             break;
                         
-                        //ints
-                        case ("providergroupid"):
-                        case ("balance"):
-                            property.IsKey = false;
-                            property.Type = PropertyType.Integer;
-                            property.TypeAtSource = "integer";
-                            break;
-                        
                         //strings
                         default:
                             property.IsKey = false;
@@ -185,9 +177,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                         recordMap["patientid"] = patient.Patientid.ToString();
                                         recordMap["balanceid"] = balance_no.ToString();
                                         recordMap["cleanbalance"] = balance.Cleanbalance;
-                                        recordMap["departmentlist"] = balance.Departmentlist.ToString() ?? "";
-                                        recordMap["providergroupid"] = balance.Providergroupid;
-                                        recordMap["balance"] = balance.BalanceBalance.ToString() ?? "0.0";
+                                        recordMap["departmentlist"] = balance.Departmentlist ?? "";
+                                        recordMap["providergroupid"] = balance.Providergroupid ?? "";
+                                        recordMap["balance"] = balance.BalanceBalance ?? "0.0";
 
                                         balance_no++;
 

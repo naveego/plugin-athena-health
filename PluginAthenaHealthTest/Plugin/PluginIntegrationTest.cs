@@ -220,8 +220,8 @@ namespace PluginAthenaHealthTest.Plugin
                 ToRefresh =
                 {
                     // GetTestSchema("PatientBalances") //good
-                    // GetTestSchema("AllBookedAppointments")
-                    GetTestSchema("AllPatients")
+                    GetTestSchema("AllBookedAppointments")
+                    //GetTestSchema("AllPatients")
                 }
             };
 

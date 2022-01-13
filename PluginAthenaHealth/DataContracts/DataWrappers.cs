@@ -444,7 +444,7 @@ namespace PluginAthenaHealth.DataContracts
         public string Departmentlist { get; set; }
 
         [JsonProperty("providergroupid")]
-        public int Providergroupid { get; set; }
+        public string Providergroupid { get; set; }
 
         [JsonProperty("cleanbalance")]
         public bool Cleanbalance { get; set; }
