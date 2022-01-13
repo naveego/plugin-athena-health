@@ -7,7 +7,7 @@ namespace PluginAthenaHealth.DataContracts
 {
     public class ConfigureWriteFormData
     {
-        public string StorageType { get; set; }
+        public string FileStorageMethod { get; set; }
         
         public string GoogleCloudStorageCredentialPath { get; set; }
         /// <summary>
@@ -16,12 +16,12 @@ namespace PluginAthenaHealth.DataContracts
         /// <exception cref="Exception"></exception>
         public void Validate()
         {
-            if (String.IsNullOrEmpty(StorageType))
+            if (String.IsNullOrEmpty(FileStorageMethod))
             {
-                throw new Exception("the ClientId property must be set");
+                throw new Exception("the File Storage Method property must be set");
             }
 
-            if (StorageType == Constants.GoogleCloudStorage)
+            if (FileStorageMethod == Constants.GoogleCloudStorage)
             {
                 if (String.IsNullOrEmpty(GoogleCloudStorageCredentialPath))
                 {

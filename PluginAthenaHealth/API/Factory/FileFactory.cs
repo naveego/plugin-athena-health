@@ -22,7 +22,7 @@ namespace PluginAthenaHealth.API.Factory
         public IFile CreateFile(string fileName, string filePath = "", string GCSBucket = "")
         {
             
-            if (ConfigureWriteFormData.StorageType == Constants.Local)
+            if (ConfigureWriteFormData.FileStorageMethod == Constants.Local)
             {
                 var fullFilePath = $"{filePath}\\{fileName}"; 
         
@@ -51,7 +51,7 @@ namespace PluginAthenaHealth.API.Factory
         {
             var filePath = "";
             
-            if (ConfigureWriteFormData.StorageType == Constants.GoogleCloudStorage)
+            if (ConfigureWriteFormData.FileStorageMethod == Constants.GoogleCloudStorage)
             {
                 filePath = $"{ServerStatus.Config.TemporaryDirectory.TrimEnd('\\')}\\{fileName}";
                 
