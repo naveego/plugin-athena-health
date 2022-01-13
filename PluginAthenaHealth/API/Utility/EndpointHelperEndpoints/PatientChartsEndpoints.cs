@@ -35,26 +35,13 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 List<string> staticSchemaProperties = new List<string>()
                 {
                     //strings
-                    "attachmentcontents",
-                    "actionnote",
-                    "attachmenttype",
-                    "documentsubclass",
-                    "entityid",
-                    "entitytype",
                     "fileName",
-                    "GCSBucket",
+                    "gcsBucket",
                     "localFilePath",
-                    "internalnote",
-                    "originalfilename",
                     
                     //ints
-                    "practiceid",
                     "patientid",
-                    "appointmentid",
-                    "providerid",
-                    
-                    //bools
-                    "autoclose",
+                    "appointmentid"
                 };
 
                 var properties = new List<Property>();
@@ -70,31 +57,16 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     {
                         //keys
                         //int keys
-                        case("practiceid"):
                         case("patientid"):
                             property.IsKey = true;
                             property.TypeAtSource = "integer";
                             property.Type = PropertyType.Integer;
                             break;
-                        //string keys
-                        case("departmentid"):
-                        case("documentsubclass"):
-                            property.IsKey = true;
-                            property.TypeAtSource = "string";
-                            property.Type = PropertyType.String;
-                            break;
 
                         //strings
-                        case("entityid"):
                         case("fileName"):
-                        case("GCSBucket"):
+                        case("gcsBucket"):
                         case("localFilePath"):
-                        case("attachmentcontents"):
-                        case("actionnote"):
-                        case("attachmenttype"):
-                        case("entitytype"):
-                        case("internalnote"):
-                        case("originalfilename"):
                             property.IsKey = false;
                             property.TypeAtSource = "string";
                             property.Type = PropertyType.String;
@@ -102,19 +74,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         
                         //ints
                         case("appointmentid"):
-                        case("providerid"):
                             property.IsKey = false;
                             property.TypeAtSource = "integer";
                             property.Type = PropertyType.Integer;
                             break;
-                            
-                        //bools
-                        case("autoclose"):
-                            property.IsKey = false;
-                            property.TypeAtSource = "boolean";
-                            property.Type = PropertyType.Bool;
-                            break;
-                        
                         default:
                             property.IsKey = false;
                             property.TypeAtSource = "string";
@@ -146,7 +109,6 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     // semaphore
                     await WriteSemaphoreSlim.WaitAsync();
                     
-                    
                     // get settings
                     var settings = apiClient.GetSettings();
 
@@ -168,20 +130,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                         postObject.TryAdd(property.Id, value);
                     }
+                    
                     var patientId = recordMap["patientid"] ?? "";
-                    var fileName = recordMap["fileName"] ?? "";
+                    var appointmentId = recordMap["appointmentid"] ?? "";
                     
                     var localFilePath = recordMap["localFilePath"] ?? "";
                     var GCSBucket = recordMap["GCSBucket"] ?? "";
+                    var fileName = recordMap["fileName"] ?? "";
                     
-                    var appointmentId = recordMap["appointmentid"] ?? "";
-                    
-                    
-                    //could be needed in future 
-                    // var documentSubclass = recordMap["documentsubclass"] ?? ""; 
-                    // var departmentId = recordMap["departmentid"] ?? "";
-                    // var fileName = $"{patientId}_{appointmentId}_{departmentId}.pdf";
-
                     if (string.IsNullOrWhiteSpace(patientId.ToString()) ||
                         string.IsNullOrWhiteSpace(fileName.ToString()))
                     {

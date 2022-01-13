@@ -19,7 +19,7 @@ namespace PluginAthenaHealth.API.Factory
             ConfigureWriteFormData = configureWriteFormData;
         }
         
-        public IFile CreateFile(string fileName, string filePath = "", string GCSBucket = "", string GCSTempStoragePath = "")
+        public IFile CreateFile(string fileName, string filePath = "", string GCSBucket = "")
         {
             
             if (ConfigureWriteFormData.StorageType == Constants.Local)

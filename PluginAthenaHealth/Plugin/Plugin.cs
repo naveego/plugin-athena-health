@@ -367,6 +367,9 @@ namespace PluginAthenaHealth.Plugin
 
             try
             {
+                var schema = await Write.GetSchemaForConfigureAsync();
+                schema.PublisherMetaJson = request.Form.DataJson;
+                
                 return new ConfigureWriteResponse
                 {
                     Form = new ConfigurationFormResponse
@@ -377,7 +380,7 @@ namespace PluginAthenaHealth.Plugin
                         UiJson = uiJson,
                         StateJson = request.Form.StateJson
                     },
-                    //Schema = schema
+                    Schema = schema
                 };
             }
             catch (Exception e)
