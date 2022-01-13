@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using Naveego.Sdk.Logging;
 using PluginAthenaHealth.API.Utility;
 
 namespace PluginAthenaHealth.DataContracts
@@ -17,12 +18,16 @@ namespace PluginAthenaHealth.DataContracts
         /// <exception cref="Exception"></exception>
         public List<string> Validate()
         {
+            Logger.Info("Starting validate");
+            
             var errors = new List<string>();
             
             if (String.IsNullOrEmpty(FileStorageMethod))
             {
                 errors.Add("the File Storage Method property must be set");
             }
+            
+            Logger.Info("After FileStorageMethod");
 
             if (FileStorageMethod == Constants.GoogleCloudStorage)
             {
@@ -36,7 +41,8 @@ namespace PluginAthenaHealth.DataContracts
                     errors.Add("No file found at given path to credentials");
                 }
             }
-
+            
+            Logger.Info("Ending validate");
             return errors;
         }
     }

@@ -382,7 +382,7 @@ namespace PluginAthenaHealth.Plugin
                         Errors = {errors},
                         SchemaJson = schemaJson,
                         UiJson = uiJson,
-                        StateJson = request.Form.StateJson
+                        StateJson = ""//request.Form.StateJson
                     },
                     Schema = schema
                 };
@@ -398,7 +398,7 @@ namespace PluginAthenaHealth.Plugin
                         Errors = {e.Message},
                         SchemaJson = schemaJson,
                         UiJson = uiJson,
-                        StateJson = request.Form.StateJson
+                        StateJson = ""//request.Form.StateJson
                     },
                     Schema = null
                 };
