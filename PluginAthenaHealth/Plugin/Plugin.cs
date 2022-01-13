@@ -367,6 +367,9 @@ namespace PluginAthenaHealth.Plugin
 
             try
             {
+                Logger.Info("request.Form.DataJson");
+                Logger.Info(request.Form.DataJson);
+                
                 var configureFormData = JsonConvert.DeserializeObject<ConfigureWriteFormData>(request.Form.DataJson);
                 
                 var errors = configureFormData.Validate();

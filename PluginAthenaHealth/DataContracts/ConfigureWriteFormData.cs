@@ -10,8 +10,8 @@ namespace PluginAthenaHealth.DataContracts
     public class ConfigureWriteFormData
     {
         public string FileStorageMethod { get; set; }
-        
         public string GoogleCloudStorageCredentialPath { get; set; }
+        
         /// <summary>
         /// Validates the settings input object
         /// </summary>
