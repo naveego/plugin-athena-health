@@ -367,14 +367,12 @@ namespace PluginAthenaHealth.Plugin
 
             try
             {
-                Logger.Info("request.Form.DataJson");
-                Logger.Info(request.Form.DataJson);
-                
                 var configureFormData = JsonConvert.DeserializeObject<ConfigureWriteFormData>(request.Form.DataJson);
                 
-                var errors = configureFormData.Validate();
-                
-                var schema = await Write.GetSchemaForConfigureAsync();
+                configureFormData.Validate();
+
+                var schema = new Schema();
+                schema = await Write.GetSchemaForConfigureAsync(schema);
                 schema.PublisherMetaJson = request.Form.DataJson;
                 
                 return new ConfigureWriteResponse
@@ -382,10 +380,10 @@ namespace PluginAthenaHealth.Plugin
                     Form = new ConfigurationFormResponse
                     {
                         DataJson = request.Form.DataJson,
-                        Errors = {errors},
+                        Errors = { },
                         SchemaJson = schemaJson,
                         UiJson = uiJson,
-                        StateJson = ""//request.Form.StateJson
+                        StateJson = request.Form.StateJson
                     },
                     Schema = schema
                 };
@@ -401,7 +399,7 @@ namespace PluginAthenaHealth.Plugin
                         Errors = {e.Message},
                         SchemaJson = schemaJson,
                         UiJson = uiJson,
-                        StateJson = ""//request.Form.StateJson
+                        StateJson = request.Form.StateJson
                     },
                     Schema = null
                 };
