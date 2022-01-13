@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using PluginAthenaHealth.API.Utility;
@@ -14,25 +15,29 @@ namespace PluginAthenaHealth.DataContracts
         /// Validates the settings input object
         /// </summary>
         /// <exception cref="Exception"></exception>
-        public void Validate()
+        public List<string> Validate()
         {
+            var errors = new List<string>();
+            
             if (String.IsNullOrEmpty(FileStorageMethod))
             {
-                throw new Exception("the File Storage Method property must be set");
+                errors.Add("the File Storage Method property must be set");
             }
 
             if (FileStorageMethod == Constants.GoogleCloudStorage)
             {
                 if (String.IsNullOrEmpty(GoogleCloudStorageCredentialPath))
                 {
-                    throw new Exception("the Google Cloud Storage Credentials property must be set");
+                    errors.Add("the Google Cloud Storage Credentials property must be set");
                 }
                 
                 if (!File.Exists(GoogleCloudStorageCredentialPath))
                 {
-                    throw new Exception("No file found at given path to credentials");
+                    errors.Add("No file found at given path to credentials");
                 }
             }
+
+            return errors;
         }
     }
 }

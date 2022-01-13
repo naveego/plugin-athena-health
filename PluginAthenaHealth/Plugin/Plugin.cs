@@ -367,6 +367,10 @@ namespace PluginAthenaHealth.Plugin
 
             try
             {
+                var configureFormData = JsonConvert.DeserializeObject<ConfigureWriteFormData>(request.Form.DataJson);
+                
+                var errors = configureFormData.Validate();
+                
                 var schema = await Write.GetSchemaForConfigureAsync();
                 schema.PublisherMetaJson = request.Form.DataJson;
                 
@@ -375,7 +379,7 @@ namespace PluginAthenaHealth.Plugin
                     Form = new ConfigurationFormResponse
                     {
                         DataJson = request.Form.DataJson,
-                        Errors = { },
+                        Errors = {errors},
                         SchemaJson = schemaJson,
                         UiJson = uiJson,
                         StateJson = request.Form.StateJson
