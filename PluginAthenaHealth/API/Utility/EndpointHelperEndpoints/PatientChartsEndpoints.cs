@@ -38,6 +38,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "fileName",
                     "gcsBucket",
                     "localFilePath",
+                    "documentSubclass",
                     
                     //ints
                     "patientid",
@@ -66,17 +67,11 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         //strings
                         case("fileName"):
                         case("gcsBucket"):
+                        case("documentSubclass"):
                         case("localFilePath"):
                             property.IsKey = false;
                             property.TypeAtSource = "string";
                             property.Type = PropertyType.String;
-                            break;
-                        
-                        //ints
-                        case("appointmentid"):
-                            property.IsKey = false;
-                            property.TypeAtSource = "integer";
-                            property.Type = PropertyType.Integer;
                             break;
                         default:
                             property.IsKey = false;
@@ -132,16 +127,18 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     }
                     
                     var patientId = recordMap["patientid"] ?? "";
-                    var appointmentId = recordMap["appointmentid"] ?? "";
                     
                     var localFilePath = recordMap["localFilePath"] ?? "";
                     var GCSBucket = recordMap["GCSBucket"] ?? "";
                     var fileName = recordMap["fileName"] ?? "";
+
+                    var documentSubclass = recordMap["documentSubclass"] ?? "";
                     
                     if (string.IsNullOrWhiteSpace(patientId.ToString()) ||
+                        string.IsNullOrWhiteSpace(documentSubclass.ToString()) ||
                         string.IsNullOrWhiteSpace(fileName.ToString()))
                     {
-                        throw new Exception($"Missing required patientId or fileName to upload patient chart for appointment {appointmentId.ToString()}");
+                        throw new Exception($"Missing required patientId, documentSubclass, or fileName to upload patient chart for chart upload.");
                     }
                     
                     var postPath = $"{BasePath.TrimEnd('/')}/{settings.PracticeId}/{patientId}/clinicaldocument?practiceid={settings.PracticeId}&Content-Type=application/pdf";
@@ -152,9 +149,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     var fileBase64 = file.GetBase64String();
                     
                     postObject.TryAdd("attachmentcontents", fileBase64);
+                    postObject.TryAdd("documentsubclass", documentSubclass);
                     postObject.TryAdd("Content-Type", $"application/pdf");
-                    
-                    postObject["originalfilename"] = new string(fileName.ToString().Take(200).ToArray()); //maximum length of 200 permitted by API
+                    postObject.TryAdd("originalfilename", new string(fileName.ToString().Take(200).ToArray())); //maximum length of 200 permitted by API
 
                     //add to json
                     var postObjectWrapper = new UpsertObjectWrapper
