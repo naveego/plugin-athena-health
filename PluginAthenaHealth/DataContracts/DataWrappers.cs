@@ -54,16 +54,16 @@ namespace PluginAthenaHealth.DataContracts
         public string ScheduledBy { get; set; }
 
         [JsonProperty("patientid")]
-        public int PatientId { get; set; }
+        public float PatientId { get; set; }
 
         [JsonProperty("duration")]
-        public string Duration { get; set; }
+        public float Duration { get; set; }
 
         [JsonProperty("templateappointmenttypeid")]
-        public int TemplateAppointmentTypeId { get; set; }
+        public float TemplateAppointmentTypeId { get; set; }
 
         [JsonProperty("hl7providerid")]
-        public string Hl7ProviderId { get; set; }
+        public float Hl7ProviderId { get; set; }
 
         [JsonProperty("lastmodifiedby")]
         public string LastModifiedBy { get; set; }
@@ -72,10 +72,10 @@ namespace PluginAthenaHealth.DataContracts
         public AppointmentCopay AppointmentCopay { get; set; }
 
         [JsonProperty("copay")]
-        public string Copay { get; set; }
+        public float Copay { get; set; }
 
         [JsonProperty("appointmenttypeid")]
-        public int AppointmentTypeId { get; set; }
+        public float AppointmentTypeId { get; set; }
 
         [JsonProperty("lastmodified")]
         public string LastModified { get; set; }
@@ -84,7 +84,7 @@ namespace PluginAthenaHealth.DataContracts
         public string AppointmentType { get; set; }
 
         [JsonProperty("providerid")]
-        public int ProviderId { get; set; }
+        public long ProviderId { get; set; }
 
         [JsonProperty("chargeentrynotrequired")]
         public bool ChargeEntryNotRequired { get; set; }
@@ -96,7 +96,7 @@ namespace PluginAthenaHealth.DataContracts
         public bool CoordinatorEnterprise { get; set; }
 
         [JsonProperty("templateappointmentid")]
-        public int TemplateAppointmentId { get; set; }
+        public long TemplateAppointmentId { get; set; }
 
         [JsonProperty("patientappointmenttypename")]
         public string PatientAppointmentTypeName { get; set; }
@@ -105,13 +105,13 @@ namespace PluginAthenaHealth.DataContracts
     public class AppointmentCopay
     {
         [JsonProperty("collectedforother")]
-        public string CollectedForOther { get; set; }
+        public float CollectedForOther { get; set; }
         
         [JsonProperty("collectedforappointment")]
-        public string CollectedForAppointment { get; set; }
+        public float CollectedForAppointment { get; set; }
         
         [JsonProperty("InsuranceCopay")]
-        public string InsuranceCopay { get; set; }
+        public float InsuranceCopay { get; set; }
     }
     public class ProviderResponse
     {

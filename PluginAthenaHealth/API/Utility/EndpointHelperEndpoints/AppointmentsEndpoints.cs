@@ -182,6 +182,17 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.Type = PropertyType.Bool;
                             property.TypeAtSource = "boolean";
                             break;
+                        //floats
+                        case ("duration"):
+                        case ("hl7providerid"):
+                        case ("appointmentcopay.collectedforother"):
+                        case ("appointmentcopay.collectedforappointment"):
+                        case ("appointmentcopay.insurancecopay"):
+                        case ("copay"):
+                            property.IsKey = false;
+                            property.Type = PropertyType.Float;
+                            property.TypeAtSource = "float";
+                            break;
                         //strings
                         default:
                             property.IsKey = false;
@@ -272,15 +283,15 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["chargeentrynotrequired"] = bookedAppointment.ChargeEntryNotRequired;
                                 
                                 //ints
-                                recordMap["duration"] = bookedAppointment.Duration ?? "";
-                                recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId ?? "";
-                                recordMap["copay"] = bookedAppointment.Copay ?? "";
+                                recordMap["duration"] = bookedAppointment.Duration;
+                                recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId;
+                                recordMap["copay"] = bookedAppointment.Copay;
                                 
                                 if (bookedAppointment.AppointmentCopay != null)
                                 {
-                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
-                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
-                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
+                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther;
+                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment;
+                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay;
                                 }
                                 
                                 //strings
@@ -289,16 +300,16 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["departmentid"] = bookedAppointment.DepartmentId ?? "";
                                 recordMap["appointmentstatus"] = bookedAppointment.AppointmentStatus ?? "";
                                 recordMap["scheduledby"] = bookedAppointment.ScheduledBy ?? "";
-                                recordMap["patientid"] = bookedAppointment.PatientId;
-                                recordMap["templateappointmenttypeid"] = bookedAppointment.TemplateAppointmentTypeId;
-                                recordMap["lastmodifiedby"] = bookedAppointment.LastModifiedBy ?? "";
+                                recordMap["patientid"] = bookedAppointment.PatientId.ToString() ?? "";
+                                recordMap["templateappointmenttypeid"] = bookedAppointment.TemplateAppointmentTypeId.ToString() ?? "";
+                                recordMap["lastmodifiedby"] = bookedAppointment.LastModifiedBy.ToString() ?? "";
                                 recordMap["appointmenttypeid"] = bookedAppointment.AppointmentTypeId;
-                                recordMap["lastmodified"] = bookedAppointment.LastModified ?? "";
-                                recordMap["appointmenttype"] = bookedAppointment.AppointmentType ?? "";
-                                recordMap["providerid"] = bookedAppointment.ProviderId;
-                                recordMap["scheduleddatetime"] = bookedAppointment.ScheduledDateTime ?? "";
-                                recordMap["templateappointmentid"] = bookedAppointment.TemplateAppointmentId;
-                                recordMap["patientappointmenttypename"] = bookedAppointment.PatientAppointmentTypeName ?? "";
+                                recordMap["lastmodified"] = bookedAppointment.LastModified.ToString() ?? "";
+                                recordMap["appointmenttype"] = bookedAppointment.AppointmentType.ToString() ?? "";
+                                recordMap["providerid"] = bookedAppointment.ProviderId.ToString() ?? "";
+                                recordMap["scheduleddatetime"] = bookedAppointment.ScheduledDateTime.ToString() ?? "";
+                                recordMap["templateappointmentid"] = bookedAppointment.TemplateAppointmentId.ToString() ?? "";
+                                recordMap["patientappointmenttypename"] = bookedAppointment.PatientAppointmentTypeName.ToString() ?? "";
                                     
                                 //Patient query
                                 
@@ -608,6 +619,17 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.Type = PropertyType.Bool;
                             property.TypeAtSource = "boolean";
                             break;
+                        //floats
+                        case ("duration"):
+                        case ("hl7providerid"):
+                        case ("appointmentcopay.collectedforother"):
+                        case ("appointmentcopay.collectedforappointment"):
+                        case ("appointmentcopay.insurancecopay"):
+                        case ("copay"):
+                            property.IsKey = false;
+                            property.Type = PropertyType.Float;
+                            property.TypeAtSource = "float";
+                            break;
                         //strings
                         default:
                             property.IsKey = false;
@@ -698,15 +720,15 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["chargeentrynotrequired"] = bookedAppointment.ChargeEntryNotRequired;
                                 
                                 //ints
-                                recordMap["duration"] = bookedAppointment.Duration ?? "";
-                                recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId ?? "";
-                                recordMap["copay"] = bookedAppointment.Copay ?? "";
+                                recordMap["duration"] = bookedAppointment.Duration;
+                                recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId;
+                                recordMap["copay"] = bookedAppointment.Copay;
                                 
                                 if (bookedAppointment.AppointmentCopay != null)
                                 {
-                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
-                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
-                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
+                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther;
+                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment;
+                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay;
                                 }
                                 
                                 //strings
@@ -1034,6 +1056,17 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.Type = PropertyType.Bool;
                             property.TypeAtSource = "boolean";
                             break;
+                        //floats
+                        case ("duration"):
+                        case ("hl7providerid"):
+                        case ("appointmentcopay.collectedforother"):
+                        case ("appointmentcopay.collectedforappointment"):
+                        case ("appointmentcopay.insurancecopay"):
+                        case ("copay"):
+                            property.IsKey = false;
+                            property.Type = PropertyType.Float;
+                            property.TypeAtSource = "float";
+                            break;
                         //strings
                         default:
                             property.IsKey = false;
@@ -1124,15 +1157,15 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["chargeentrynotrequired"] = bookedAppointment.ChargeEntryNotRequired;
                                 
                                 //ints
-                                recordMap["duration"] = bookedAppointment.Duration ?? "";
-                                recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId ?? "";
-                                recordMap["copay"] = bookedAppointment.Copay ?? "";
+                                recordMap["duration"] = bookedAppointment.Duration;
+                                recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId;
+                                recordMap["copay"] = bookedAppointment.Copay;
                                 
                                 if (bookedAppointment.AppointmentCopay != null)
                                 {
-                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
-                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
-                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
+                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther;
+                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment;
+                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay;
                                 }
                                 
                                 //strings
@@ -1460,6 +1493,17 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.Type = PropertyType.Bool;
                             property.TypeAtSource = "boolean";
                             break;
+                        //floats
+                        case ("duration"):
+                        case ("hl7providerid"):
+                        case ("appointmentcopay.collectedforother"):
+                        case ("appointmentcopay.collectedforappointment"):
+                        case ("appointmentcopay.insurancecopay"):
+                        case ("copay"):
+                            property.IsKey = false;
+                            property.Type = PropertyType.Float;
+                            property.TypeAtSource = "float";
+                            break;
                         //strings
                         default:
                             property.IsKey = false;
@@ -1550,15 +1594,15 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["chargeentrynotrequired"] = bookedAppointment.ChargeEntryNotRequired;
                                 
                                 //ints
-                                recordMap["duration"] = bookedAppointment.Duration ?? "";
-                                recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId ?? "";
-                                recordMap["copay"] = bookedAppointment.Copay ?? "";
+                                recordMap["duration"] = bookedAppointment.Duration;
+                                recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId;
+                                recordMap["copay"] = bookedAppointment.Copay;
                                 
                                 if (bookedAppointment.AppointmentCopay != null)
                                 {
-                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
-                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
-                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
+                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther;
+                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment;
+                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay;
                                 }
                                 
                                 //strings
