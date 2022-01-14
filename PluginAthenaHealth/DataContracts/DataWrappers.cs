@@ -17,6 +17,11 @@ namespace PluginAthenaHealth.DataContracts
 
     public class Department
     {
+        public Department(string departmentId)
+        {
+            DepartmentId = departmentId;
+        }
+        
         [JsonProperty("departmentid")]
         public string DepartmentId { get; set; }
     }

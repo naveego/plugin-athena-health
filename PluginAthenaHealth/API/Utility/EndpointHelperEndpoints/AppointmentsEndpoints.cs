@@ -221,8 +221,33 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                 var startDate = settings.StartDate;
                 var endDate = string.IsNullOrWhiteSpace(settings.EndDate) ? DateTime.Today.ToString("MM/dd/yyyy") : settings.EndDate;
+                var settingsDepartments = settings.Departments.Split(',').ToList();
+                var departments = new List<Department> { };
                 
-                foreach (var department in departmentResponse.Departments)
+                if (settingsDepartments.Count > 0)
+                {
+                    foreach (var department in settingsDepartments)
+                    {
+                        departments.Add(new Department(department));
+                    }
+                }
+                else
+                {
+                    departments = departmentResponse.Departments;
+                }
+                
+                var settingsAppointmentTypes = settings.AppointmentTypes.Split(',').ToList();
+                var appointmentTypes = new List<string> { };
+                
+                if (settingsAppointmentTypes.Count > 0)
+                {
+                    foreach (var appointmentType in settingsAppointmentTypes)
+                    {
+                        appointmentTypes.Add(appointmentType);
+                    }
+                }
+                
+                foreach (var department in departments)
                 {
                     var thisDepartmentId = department.DepartmentId ?? "";
 
@@ -261,6 +286,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         {
                            foreach (var bookedAppointment in bookedApptResponse.Appointments)
                             {
+                                if (appointmentTypes.Count > 0)
+                                {
+                                    if (!appointmentTypes.Contains(bookedAppointment.AppointmentTypeId))
+                                    {
+                                        continue;
+                                    }
+                                }
+                                
                                 var recordMap = new Dictionary<string, object>();
 
                                 //keys
@@ -646,8 +679,33 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                 var startDate = DateTime.Today.ToString("MM/dd/yyyy");
                 var endDate = DateTime.Today.ToString("MM/dd/yyyy");
+                var settingsDepartments = settings.Departments.Split(',').ToList();
+                var departments = new List<Department> { };
                 
-                foreach (var department in departmentResponse.Departments)
+                if (settingsDepartments.Count > 0)
+                {
+                    foreach (var department in settingsDepartments)
+                    {
+                        departments.Add(new Department(department));
+                    }
+                }
+                else
+                {
+                    departments = departmentResponse.Departments;
+                }
+                
+                var settingsAppointmentTypes = settings.AppointmentTypes.Split(',').ToList();
+                var appointmentTypes = new List<string> { };
+                
+                if (settingsAppointmentTypes.Count > 0)
+                {
+                    foreach (var appointmentType in settingsAppointmentTypes)
+                    {
+                        appointmentTypes.Add(appointmentType);
+                    }
+                }
+                
+                foreach (var department in departments)
                 {
                     var thisDepartmentId = department.DepartmentId ?? "";
 
@@ -686,6 +744,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         {
                            foreach (var bookedAppointment in bookedApptResponse.Appointments)
                             {
+                                if (appointmentTypes.Count > 0)
+                                {
+                                    if (!appointmentTypes.Contains(bookedAppointment.AppointmentTypeId))
+                                    {
+                                        continue;
+                                    }
+                                }
+                                
                                 var recordMap = new Dictionary<string, object>();
 
                                 //keys
@@ -1071,8 +1137,33 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                 var startDate = DateTime.Today.AddDays(-1).ToString("MM/dd/yyyy");
                 var endDate = DateTime.Today.AddDays(-1).ToString("MM/dd/yyyy");
+                var settingsDepartments = settings.Departments.Split(',').ToList();
+                var departments = new List<Department> { };
                 
-                foreach (var department in departmentResponse.Departments)
+                if (settingsDepartments.Count > 0)
+                {
+                    foreach (var department in settingsDepartments)
+                    {
+                        departments.Add(new Department(department));
+                    }
+                }
+                else
+                {
+                    departments = departmentResponse.Departments;
+                }
+                
+                var settingsAppointmentTypes = settings.AppointmentTypes.Split(',').ToList();
+                var appointmentTypes = new List<string> { };
+                
+                if (settingsAppointmentTypes.Count > 0)
+                {
+                    foreach (var appointmentType in settingsAppointmentTypes)
+                    {
+                        appointmentTypes.Add(appointmentType);
+                    }
+                }
+                
+                foreach (var department in departments)
                 {
                     var thisDepartmentId = department.DepartmentId ?? "";
 
@@ -1111,6 +1202,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         {
                            foreach (var bookedAppointment in bookedApptResponse.Appointments)
                             {
+                                if (appointmentTypes.Count > 0)
+                                {
+                                    if (!appointmentTypes.Contains(bookedAppointment.AppointmentTypeId))
+                                    {
+                                        continue;
+                                    }
+                                }
+                                
                                 var recordMap = new Dictionary<string, object>();
 
                                 //keys
@@ -1496,8 +1595,34 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                 var startDate = DateTime.Today.AddDays(-7).ToString("MM/dd/yyyy");
                 var endDate = DateTime.Today.ToString("MM/dd/yyyy");
+
+                var settingsDepartments = settings.Departments.Split(',').ToList();
+                var departments = new List<Department> { };
                 
-                foreach (var department in departmentResponse.Departments)
+                if (settingsDepartments.Count > 0)
+                {
+                    foreach (var department in settingsDepartments)
+                    {
+                        departments.Add(new Department(department));
+                    }
+                }
+                else
+                {
+                    departments = departmentResponse.Departments;
+                }
+                
+                var settingsAppointmentTypes = settings.AppointmentTypes.Split(',').ToList();
+                var appointmentTypes = new List<string> { };
+                
+                if (settingsAppointmentTypes.Count > 0)
+                {
+                    foreach (var appointmentType in settingsAppointmentTypes)
+                    {
+                        appointmentTypes.Add(appointmentType);
+                    }
+                }
+                
+                foreach (var department in departments)
                 {
                     var thisDepartmentId = department.DepartmentId ?? "";
 
@@ -1536,6 +1661,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         {
                            foreach (var bookedAppointment in bookedApptResponse.Appointments)
                             {
+                                if (appointmentTypes.Count > 0)
+                                {
+                                    if (!appointmentTypes.Contains(bookedAppointment.AppointmentTypeId))
+                                    {
+                                        continue;
+                                    }
+                                }
+                                
                                 var recordMap = new Dictionary<string, object>();
 
                                 //keys

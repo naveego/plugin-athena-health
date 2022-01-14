@@ -55,6 +55,16 @@
           "description": "Is this a production practice?",
           "default": false
         },
+        "Departments" : {
+          "type": "string",
+          "title": "Departments",
+          "description": "Comma separated list of department ID's to pull. If left blank, will pull all found within the practice"
+        },
+        "AppointmentTypes" : {
+          "type": "string",
+          "title": "Appointment Types",
+          "description": "Comma separated list of appointment ID's to pull. If left blank, will pull all found within the practice"
+        },
         "StartDate" : {
           "type": "string",
           "title": "Start Date",
