@@ -24,6 +24,8 @@
         "ClientSecret",
         "PracticeId",
         "ProductionPractice",
+        "Departments",
+        "AppointmentTypes",
         "StartDate",
         "EndDate"
       ],
