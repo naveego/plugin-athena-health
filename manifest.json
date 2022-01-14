@@ -58,12 +58,12 @@
         "StartDate" : {
           "type": "string",
           "title": "Start Date",
-          "description": "Booked Appointments pull starting from this date"
+          "description": "Historical appointments pull starting from this date"
         },
         "EndDate" : {
           "type": "string",
           "title": "End Date",
-          "description": "Booked Appointments stop pulling after this date"
+          "description": "Historical appointments stop pulling after this date. If left blank, will continually be updated to run to the current day's date"
         }
       },
       "required": [
@@ -71,8 +71,7 @@
         "ClientId",
         "ClientSecret",
         "ProductionPractice",
-        "StartDate",
-        "EndDate"
+        "StartDate"
       ]
     }
   }

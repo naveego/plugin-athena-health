@@ -269,7 +269,7 @@ namespace PluginAthenaHealthTest.Plugin
             var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
             var client = new Publisher.PublisherClient(channel);
 
-            var schema = GetTestSchema("PatientBalances");
+            var schema = GetTestSchema("BookedAppointments_Historical");
 
             var connectRequest = GetConnectSettings();
 
@@ -303,7 +303,7 @@ namespace PluginAthenaHealthTest.Plugin
             }
 
             // assert
-            Assert.Equal(1712, records.Count);
+            Assert.Equal(17, records.Count);
 
             var record = JsonConvert.DeserializeObject<Dictionary<string, object>>(records[0].DataJson);
             Assert.Equal("3101903", record["appointmentid"]);

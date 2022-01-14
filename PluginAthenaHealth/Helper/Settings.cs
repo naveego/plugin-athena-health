@@ -42,16 +42,7 @@ namespace PluginAthenaHealth.Helper
             }
             if (!date_regex.IsMatch(StartDate))
             {
-                throw new Exception("the StartDate property must be mm/dd/yyyy");
-            }
-            
-            if (string.IsNullOrEmpty(EndDate))
-            {
-                throw new Exception("the EndDate property must be set");
-            }
-            if (!date_regex.IsMatch(EndDate))
-            {
-                throw new Exception("the EndDate property must be mm/dd/yyyy");
+                throw new Exception("the StartDate property must be MM/dd/yyyy");
             }
         }
 
