@@ -45,7 +45,7 @@ namespace PluginAthenaHealth.DataContracts
         public string StartTime { get; set; }
 
         [JsonProperty("departmentid")]
-        public int DepartmentId { get; set; }
+        public string DepartmentId { get; set; }
 
         [JsonProperty("appointmentstatus")]
         public string AppointmentStatus { get; set; }
@@ -57,13 +57,13 @@ namespace PluginAthenaHealth.DataContracts
         public int PatientId { get; set; }
 
         [JsonProperty("duration")]
-        public int Duration { get; set; }
+        public string Duration { get; set; }
 
         [JsonProperty("templateappointmenttypeid")]
         public int TemplateAppointmentTypeId { get; set; }
 
         [JsonProperty("hl7providerid")]
-        public int Hl7ProviderId { get; set; }
+        public string Hl7ProviderId { get; set; }
 
         [JsonProperty("lastmodifiedby")]
         public string LastModifiedBy { get; set; }
@@ -72,7 +72,7 @@ namespace PluginAthenaHealth.DataContracts
         public AppointmentCopay AppointmentCopay { get; set; }
 
         [JsonProperty("copay")]
-        public int Copay { get; set; }
+        public string Copay { get; set; }
 
         [JsonProperty("appointmenttypeid")]
         public int AppointmentTypeId { get; set; }
@@ -105,13 +105,13 @@ namespace PluginAthenaHealth.DataContracts
     public class AppointmentCopay
     {
         [JsonProperty("collectedforother")]
-        public int CollectedForOther { get; set; }
+        public string CollectedForOther { get; set; }
         
         [JsonProperty("collectedforappointment")]
-        public int CollectedForAppointment { get; set; }
+        public string CollectedForAppointment { get; set; }
         
         [JsonProperty("InsuranceCopay")]
-        public int InsuranceCopay { get; set; }
+        public string InsuranceCopay { get; set; }
     }
     public class ProviderResponse
     {

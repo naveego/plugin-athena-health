@@ -269,7 +269,7 @@ namespace PluginAthenaHealthTest.Plugin
             var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
             var client = new Publisher.PublisherClient(channel);
 
-            var schema = GetTestSchema("BookedAppointments_Historical");
+            var schema = GetTestSchema("BookedAppointments_Last7Days");
 
             var connectRequest = GetConnectSettings();
 
