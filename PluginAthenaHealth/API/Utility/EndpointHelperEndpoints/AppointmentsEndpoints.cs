@@ -189,6 +189,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case ("appointmentcopay.collectedforappointment"):
                         case ("appointmentcopay.insurancecopay"):
                         case ("copay"):
+                        case ("templateappointmentid"):
+                        case ("providerid"):
+                        case ("templateappointmenttypeid"):
+                        case ("appointmenttypeid"):
                             property.IsKey = false;
                             property.Type = PropertyType.Float;
                             property.TypeAtSource = "float";
@@ -626,6 +630,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case ("appointmentcopay.collectedforappointment"):
                         case ("appointmentcopay.insurancecopay"):
                         case ("copay"):
+                        case ("templateappointmentid"):
+                        case ("providerid"):
+                        case ("templateappointmenttypeid"):
+                        case ("appointmenttypeid"):
                             property.IsKey = false;
                             property.Type = PropertyType.Float;
                             property.TypeAtSource = "float";
@@ -1063,6 +1071,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case ("appointmentcopay.collectedforappointment"):
                         case ("appointmentcopay.insurancecopay"):
                         case ("copay"):
+                        case ("templateappointmentid"):
+                        case ("providerid"):
+                        case ("templateappointmenttypeid"):
+                        case ("appointmenttypeid"):
                             property.IsKey = false;
                             property.Type = PropertyType.Float;
                             property.TypeAtSource = "float";
@@ -1500,6 +1512,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case ("appointmentcopay.collectedforappointment"):
                         case ("appointmentcopay.insurancecopay"):
                         case ("copay"):
+                        case ("templateappointmentid"):
+                        case ("providerid"):
+                        case ("templateappointmenttypeid"):
+                        case ("appointmenttypeid"):
                             property.IsKey = false;
                             property.Type = PropertyType.Float;
                             property.TypeAtSource = "float";
