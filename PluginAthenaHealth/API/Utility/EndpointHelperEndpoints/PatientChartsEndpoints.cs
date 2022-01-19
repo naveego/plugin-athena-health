@@ -39,8 +39,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "gcsBucket",
                     "localFilePath",
                     "documentSubclass",
-                    
-                    //ints
+                    "departmentid",
                     "patientid",
                     "appointmentid"
                 };
@@ -69,6 +68,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case("gcsBucket"):
                         case("documentSubclass"):
                         case("localFilePath"):
+                        case("appointmentid"):
+                        case("departmentid"):
                             property.IsKey = false;
                             property.TypeAtSource = "string";
                             property.Type = PropertyType.String;
@@ -127,18 +128,29 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     }
                     
                     var patientId = recordMap["patientid"] ?? "";
+                    var departmentId = recordMap["departmentid"] ?? "";
                     
                     var localFilePath = recordMap["localFilePath"] ?? "";
                     var GCSBucket = recordMap["GCSBucket"] ?? "";
                     var fileName = recordMap["fileName"] ?? "";
 
                     var documentSubclass = recordMap["documentSubclass"] ?? "";
-                    
-                    if (string.IsNullOrWhiteSpace(patientId.ToString()) ||
-                        string.IsNullOrWhiteSpace(documentSubclass.ToString()) ||
-                        string.IsNullOrWhiteSpace(fileName.ToString()))
+
+                    if (string.IsNullOrWhiteSpace(patientId.ToString()))
                     {
-                        throw new Exception($"Missing required patientId, documentSubclass, or fileName to upload patient chart for chart upload.");
+                        throw new Exception($"Missing required patientId to upload patient chart");
+                    }
+                    if (string.IsNullOrWhiteSpace(documentSubclass.ToString()))
+                    {
+                        throw new Exception($"Missing required documentSubclass to upload patient chart");
+                    }
+                    if (string.IsNullOrWhiteSpace(fileName.ToString()))
+                    {
+                        throw new Exception($"Missing required fileName to upload patient chart");
+                    }
+                    if (string.IsNullOrWhiteSpace(departmentId.ToString()))
+                    {
+                        throw new Exception($"Missing required departmentId to upload patient chart");
                     }
                     
                     var postPath = $"{BasePath.TrimEnd('/')}/{settings.PracticeId}/{patientId}/clinicaldocument?practiceid={settings.PracticeId}&Content-Type=application/pdf";
@@ -150,6 +162,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     
                     postObject.TryAdd("attachmentcontents", fileBase64);
                     postObject.TryAdd("documentsubclass", documentSubclass);
+                    postObject.TryAdd("departmentid", departmentId);
                     postObject.TryAdd("Content-Type", $"application/pdf");
                     postObject.TryAdd("originalfilename", new string(fileName.ToString().Take(200).ToArray())); //maximum length of 200 permitted by API
 
