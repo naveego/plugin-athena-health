@@ -113,25 +113,25 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                     // write records
 
-                    var postObject = new Dictionary<string, object>();
+                    var postObject = new Dictionary<string, string>();
 
-                    foreach (var property in schema.Properties)
-                    {
-                        object value = "";
-                        
-                        if (recordMap.ContainsKey(property.Id))
-                        {
-                            value = recordMap[property.Id];
-                        }
-
-                        postObject.TryAdd(property.Id, value);
-                    }
+                    // foreach (var property in schema.Properties)
+                    // {
+                    //     object value = "";
+                    //     
+                    //     if (recordMap.ContainsKey(property.Id))
+                    //     {
+                    //         value = recordMap[property.Id];
+                    //     }
+                    //
+                    //     postObject.TryAdd(property.Id, value);
+                    // }
                     
                     var patientId = recordMap["patientid"] ?? "";
                     var departmentId = recordMap["departmentid"] ?? "";
                     
                     var localFilePath = recordMap["localFilePath"] ?? "";
-                    var GCSBucket = recordMap["GCSBucket"] ?? "";
+                    var GCSBucket = recordMap["gcsBucket"] ?? "";
                     var fileName = recordMap["fileName"] ?? "";
 
                     var documentSubclass = recordMap["documentSubclass"] ?? "";
@@ -153,7 +153,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         throw new Exception($"Missing required departmentId to upload patient chart");
                     }
                     
-                    var postPath = $"{BasePath.TrimEnd('/')}/{settings.PracticeId}/{patientId}/clinicaldocument?practiceid={settings.PracticeId}&Content-Type=application/pdf";
+                    var postPath = $"{settings.PracticeId}/patients/{patientId}/documents/clinicaldocument?practiceid={settings.PracticeId}&Content-Type=application/pdf";
                     var configureWriteSettings = JsonConvert.DeserializeObject<ConfigureWriteFormData>(schema.PublisherMetaJson);
                     
                     var fileFactory = new FileFactory(configureWriteSettings);
@@ -161,24 +161,12 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     var fileBase64 = file.GetBase64String();
                     
                     postObject.TryAdd("attachmentcontents", fileBase64);
-                    postObject.TryAdd("documentsubclass", documentSubclass);
-                    postObject.TryAdd("departmentid", departmentId);
+                    postObject.TryAdd("documentsubclass", documentSubclass.ToString());
+                    postObject.TryAdd("departmentid", departmentId.ToString());
                     postObject.TryAdd("Content-Type", $"application/pdf");
                     postObject.TryAdd("originalfilename", new string(fileName.ToString().Take(200).ToArray())); //maximum length of 200 permitted by API
 
-                    //add to json
-                    var postObjectWrapper = new UpsertObjectWrapper
-                    {
-                        Properties = postObject
-                    };
-
-                    var json = new StringContent(
-                        JsonConvert.SerializeObject(postObjectWrapper),
-                        Encoding.UTF8,
-                        "application/json"
-                    );
-                    
-                    HttpResponseMessage response = await apiClient.PostAsync(postPath, json);
+                    HttpResponseMessage response = await apiClient.PostAsync(postPath, postObject);
                     
                     fileFactory.DeleteTemporaryFile(fileName.ToString());
                     

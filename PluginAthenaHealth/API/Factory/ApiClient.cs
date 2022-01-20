@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -90,19 +91,42 @@ namespace PluginAthenaHealth.API.Factory
             }
         }
 
-        public async Task<HttpResponseMessage> PostAsync(string path, StringContent json)
+        // public async Task<HttpResponseMessage> PostAsync(string path, StringContent json)
+        public async Task<HttpResponseMessage> PostAsync(string path, Dictionary<string, string> postData)
         {
             try
             {
                 var token = await Authenticator.GetToken();
                 var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{path.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
+
+                var encodedKeyValues = new Dictionary<string, string> { };
+                
+                foreach (var kv in postData)
+                {
+                    if(kv.Key == "fileName")
+                    {
+                        if (!string.IsNullOrWhiteSpace(kv.Value))
+                        {
+                            encodedKeyValues.Add(kv.Key, HttpUtility.UrlEncode(kv.Value));
+                        }
+                        else
+                        {
+                            throw new Exception("Patient chart upload failure: null or whitespace filename");
+                        }
+                    }
+                    else
+                    {
+                        
+                        encodedKeyValues.Add(kv.Key, kv.Value);
+                    }
+                }
                 
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
                     RequestUri = uri,
-                    Content = json
+                    Content = new FormUrlEncodedContent(encodedKeyValues)
                 };
 
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

@@ -397,7 +397,8 @@ namespace PluginAthenaHealthTest.Plugin
                 {
                     DataJson = JsonConvert.SerializeObject(new ConfigureWriteFormData
                     {
-                       // StoredProcedure = "\"public\".\"INSERT_ACTOR\""
+                       FileStorageMethod = Constants.GoogleCloudStorage,
+                       GoogleCloudStorageCredentialPath = @"C:\Dev\Athena Health\test-proj-337418-dc606f7ce7d3.json"
                     })
                 }
             };
@@ -451,7 +452,10 @@ namespace PluginAthenaHealthTest.Plugin
                                    $"\"appointmentid\":\"1111\"," +
                                    $"\"practiceid\":{GetSettings().PracticeId}, " +
                                    $"\"departmentid\":\"67\"," +
-                                   $"\"documentsubclass\":\"CLINICALDOCUMENT\"}}", //appointmentid is ph
+                                   $"\"localFilePath\":\"\"," +
+                                   $"\"gcsBucket\":\"aunalytics-demo-bucket-1\"," +
+                                   $"\"fileName\":\"123.pdf\"," +
+                                   $"\"documentSubclass\":\"CLINICALDOCUMENT\"}}", //appointmentid is ph
                     }
                 }
             };

@@ -3,6 +3,7 @@ using System.IO;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
 using Grpc.Core;
+using Naveego.Sdk.Logging;
 using PluginAthenaHealth.API.Utility;
 using PluginAthenaHealth.Helper;
 using PluginAthenaHealth.Plugin;
@@ -36,13 +37,18 @@ namespace PluginAthenaHealth.API.Factory
             else //configureWrite == gcs
             {
                 var storage = StorageClient.Create(GoogleCredential.FromFile(ConfigureWriteFormData.GoogleCloudStorageCredentialPath));
-                var outputFile = File.OpenWrite(ServerStatus.Config.TemporaryDirectory);
-                storage.DownloadObjectAsync(GCSBucket,
-                    fileName,
-                    outputFile);
-                        
-                var byteArray = File.ReadAllBytes($"{ServerStatus.Config.TemporaryDirectory.TrimEnd('\\')}\\{fileName}");
+
+                var tempPath = ServerStatus.Config.TemporaryDirectory;
                 
+                Logger.Info($"Using {tempPath} as temporary file");
+                using (var outputFile = File.OpenWrite(tempPath))
+                {
+                    storage.DownloadObject(GCSBucket,
+                        fileName,
+                        outputFile);
+                }
+                Logger.Info($"Downloaded to {tempPath} successfully");
+                var byteArray = File.ReadAllBytes($"{tempPath}");
                 return new FileByteArray(byteArray);
             }
         }
@@ -53,6 +59,7 @@ namespace PluginAthenaHealth.API.Factory
             
             if (ConfigureWriteFormData.FileStorageMethod == Constants.GoogleCloudStorage)
             {
+                
                 filePath = $"{ServerStatus.Config.TemporaryDirectory.TrimEnd('\\')}\\{fileName}";
                 
                 if (!File.Exists(filePath))

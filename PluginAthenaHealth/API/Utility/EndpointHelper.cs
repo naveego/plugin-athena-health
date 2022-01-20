@@ -22,7 +22,7 @@ namespace PluginAthenaHealth.API.Utility
         {
             PatientsEndpointHelper.PatientsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
             AppointmentsEndpointHelper.BookedAppointmentsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
-            //PatientChartsEndpointHelper.PatientChartsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
+            //PatientChartsEndpointHelper.PatientChartsEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value)); //Comment this line for prod releases - noncritical mistake but prevents potential user error
             PatientBalancesEndpointHelper.PatientBalancesEndpoints.ToList().ForEach(x => Endpoints.TryAdd(x.Key, x.Value));
         }
 
@@ -126,107 +126,7 @@ namespace PluginAthenaHealth.API.Utility
         public virtual async Task<string> WriteRecordAsync(IApiClient apiClient, Schema schema, Record record,
             IServerStreamWriter<RecordAck> responseStream)
         {
-             var recordMap = JsonConvert.DeserializeObject<Dictionary<string, object>>(record.DataJson);
-
-            foreach (var requiredPropertyId in RequiredWritePropertyIds)
-            {
-                if (!recordMap.ContainsKey(requiredPropertyId))
-                {
-                    var errorMessage = $"Record did not contain required property {requiredPropertyId}";
-                    var errorAck = new RecordAck
-                    {
-                        CorrelationId = record.CorrelationId,
-                        Error = errorMessage
-                    };
-                    await responseStream.WriteAsync(errorAck);
-
-                    return errorMessage;
-                }
-
-                if (recordMap.ContainsKey(requiredPropertyId) && recordMap[requiredPropertyId] == null)
-                {
-                    var errorMessage = $"Required property {requiredPropertyId} was NULL";
-                    var errorAck = new RecordAck
-                    {
-                        CorrelationId = record.CorrelationId,
-                        Error = errorMessage
-                    };
-                    await responseStream.WriteAsync(errorAck);
-
-                    return errorMessage;
-                }
-            }
-            
-            var postObject = new Dictionary<string, object>();
-
-            foreach (var property in schema.Properties)
-            {
-                object value = "";
-
-                var propertyMetaJson = JsonConvert.DeserializeObject<PropertyMetaJson>(property.PublisherMetaJson);
-                var readOnlyProperty = propertyMetaJson?.ModificationMetaData?.ReadOnlyValue ?? false;
-
-                if (propertyMetaJson.Calculated || propertyMetaJson.IsKey || readOnlyProperty || !recordMap.ContainsKey(property.Id))
-                {
-                    continue;
-                }
-                
-                if (recordMap.ContainsKey(property.Id))
-                {
-                    value = recordMap[property.Id];
-                }
-
-                postObject.TryAdd(property.Id, value);
-            }
-
-            var postObjectWrapper = new UpsertObjectWrapper
-            {
-                Properties = postObject
-            };
-
-            var objstr = JsonConvert.SerializeObject(postObjectWrapper);
-
-            var json = new StringContent(
-                JsonConvert.SerializeObject(postObjectWrapper),
-                Encoding.UTF8,
-                "application/json"
-            );
-
-            HttpResponseMessage response;
-
-            if (!recordMap.ContainsKey(WritePathPropertyId) || recordMap.ContainsKey(WritePathPropertyId) &&
-                recordMap[WritePathPropertyId] == null)
-            {
-                response =
-                    await apiClient.PostAsync($"{BasePath.TrimEnd('/')}", json);
-            }
-            else
-            {
-                response =
-                    await apiClient.PatchAsync($"{BasePath.TrimEnd('/')}/{recordMap[WritePathPropertyId]}", json);
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                var errorAck = new RecordAck
-                {
-                    CorrelationId = record.CorrelationId,
-                    Error = errorMessage
-                };
-                await responseStream.WriteAsync(errorAck);
-
-                return errorMessage;
-            }
-
-            var ack = new RecordAck
-            {
-                CorrelationId = record.CorrelationId,
-                Error = ""
-            };
-            await responseStream.WriteAsync(ack);
-
-            return "";
+            throw new NotImplementedException();
         }
 
         public virtual Task<Schema> GetStaticSchemaAsync(IApiClient apiClient, Schema schema)
