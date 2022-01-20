@@ -115,18 +115,6 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                     var postObject = new Dictionary<string, string>();
 
-                    // foreach (var property in schema.Properties)
-                    // {
-                    //     object value = "";
-                    //     
-                    //     if (recordMap.ContainsKey(property.Id))
-                    //     {
-                    //         value = recordMap[property.Id];
-                    //     }
-                    //
-                    //     postObject.TryAdd(property.Id, value);
-                    // }
-                    
                     var patientId = recordMap["patientid"] ?? "";
                     var departmentId = recordMap["departmentid"] ?? "";
                     
