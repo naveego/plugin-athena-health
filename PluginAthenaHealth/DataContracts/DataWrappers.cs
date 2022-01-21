@@ -35,7 +35,7 @@ namespace PluginAthenaHealth.DataContracts
         public long Totalcount { get; set; }
 
         [JsonProperty("appointments")]
-        public List<Appointment> Appointments { get; set; }
+        public List<Appointment>? Appointments { get; set; }
     }
 
     public class Appointment

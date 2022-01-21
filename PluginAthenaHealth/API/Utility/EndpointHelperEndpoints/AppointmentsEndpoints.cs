@@ -26,15 +26,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
             {
                 List<string> staticSchemaProperties = new List<string>()
                 {
-                    
                     //From: BookedAppointments
                     //keys
                     "appointmentid",
-                    
+
                     //bools
                     "coordinatorenterprise",
                     "chargeentrynotrequired",
-                    
+
                     //ints
                     "duration",
                     "hl7providerid",
@@ -42,7 +41,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "appointmentcopay.collectedforappointment",
                     "appointmentcopay.insurancecopay",
                     "copay",
-                    
+
                     //strings
                     "date",
                     "starttime",
@@ -59,7 +58,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "scheduleddatetime",
                     "templateappointmentid",
                     "patientappointmenttypename",
-                    
+
                     //From: Patient
                     //strings
                     "patient.racename",
@@ -107,7 +106,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "patient.countrycode3166",
                     "patient.guarantorcountrycode3166",
                     "patient.race",
-                    
+
                     //bools
                     "patient.contactpreference_lab_phone",
                     "patient.consenttotext",
@@ -134,7 +133,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "patient.contactpreference_announcement_sms",
                     "patient.emailexists",
                 };
-                
+
                 var properties = new List<Property>();
 
                 foreach (var staticProperty in staticSchemaProperties)
@@ -177,7 +176,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case ("patient.privacyinformationverified"):
                         case ("patient.contactpreference_lab_email"):
                         case ("patient.contactpreference_announcement_sms"):
-                        case ("patient.emailexists"): 
+                        case ("patient.emailexists"):
                             property.IsKey = false;
                             property.Type = PropertyType.Bool;
                             property.TypeAtSource = "boolean";
@@ -188,20 +187,23 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.TypeAtSource = "string";
                             break;
                     }
+
                     properties.Add(property);
                 }
+
                 schema.Properties.Clear();
                 schema.Properties.AddRange(properties);
 
                 schema.DataFlowDirection = GetDataFlowDirection();
-                
+
                 return schema;
             }
 
-            public override async IAsyncEnumerable<Record> ReadRecordsAsync(IApiClient apiClient, Schema schema, bool isDiscoverRead = false)
+            public override async IAsyncEnumerable<Record> ReadRecordsAsync(IApiClient apiClient, Schema schema,
+                bool isDiscoverRead = false)
             {
                 var settings = apiClient.GetSettings();
-                
+
                 var departmentPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/departments";
 
                 var departmentResult = await apiClient.GetAsync(departmentPath);
@@ -210,21 +212,24 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     throw new Exception(departmentResult.ReasonPhrase);
                 }
+
                 if (!departmentResult.IsSuccessStatusCode)
                 {
                     throw new Exception(departmentResult.Content.ReadAsStringAsync().ToString());
                 }
-                
+
                 var departmentResponse =
                     JsonConvert.DeserializeObject<DepartmentResponse>(
                         await departmentResult.Content.ReadAsStringAsync());
 
                 var startDate = settings.StartDate;
-                var endDate = string.IsNullOrWhiteSpace(settings.EndDate) ? DateTime.Today.ToString("MM/dd/yyyy") : settings.EndDate;
-                var settingsDepartments = settings.Departments.Split(',').ToList();
+                var endDate = string.IsNullOrWhiteSpace(settings.EndDate)
+                    ? DateTime.Today.ToString("MM/dd/yyyy")
+                    : settings.EndDate;
+                var settingsDepartments = settings.Departments?.Split(',').ToList();
                 var departments = new List<Department> { };
-                
-                if (settingsDepartments.Count > 0)
+
+                if (settingsDepartments != null && settingsDepartments.Count > 0)
                 {
                     foreach (var department in settingsDepartments)
                     {
@@ -235,30 +240,29 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     departments = departmentResponse.Departments;
                 }
-                
-                var settingsAppointmentTypes = settings.AppointmentTypes.Split(',').ToList();
+
+                var settingsAppointmentTypes = settings.AppointmentTypes?.Split(',').ToList();
                 var appointmentTypes = new List<string> { };
-                
-                if (settingsAppointmentTypes.Count > 0)
+
+                if (settingsAppointmentTypes != null && settingsAppointmentTypes.Count > 0)
                 {
                     foreach (var appointmentType in settingsAppointmentTypes)
                     {
                         appointmentTypes.Add(appointmentType);
                     }
                 }
-                
+
                 foreach (var department in departments)
                 {
                     var thisDepartmentId = department.DepartmentId ?? "";
 
                     var bookedApptsPath =
                         $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/appointments/booked?startdate={startDate}&enddate={endDate}&departmentid={thisDepartmentId}";
-                    
+
                     var hasMore = false;
 
                     do
                     {
-                        
                         var bookedApptsResult = await apiClient.GetAsync(bookedApptsPath);
 
                         if (!bookedApptsResult.IsSuccessStatusCode)
@@ -268,23 +272,23 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 var errorResponse =
                                     JsonConvert.DeserializeObject<Error>(
                                         await bookedApptsResult.Content.ReadAsStringAsync());
-                                    
-                                throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage) ? 
-                                    bookedApptsResult.Content.ReadAsStringAsync().ToString() : errorResponse.ErrorMessage);
+
+                                throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage)
+                                    ? bookedApptsResult.Content.ReadAsStringAsync().ToString()
+                                    : errorResponse.ErrorMessage);
                             }
                             catch
                             {
                                 throw new Exception(bookedApptsResult.Content.ReadAsStringAsync().ToString());
                             }
-                            
                         }
-                    
+
                         var bookedApptResponse = JsonConvert.DeserializeObject<BookedAppointmentResponse>(
                             await bookedApptsResult.Content.ReadAsStringAsync());
-                        
+
                         if (bookedApptResponse.Appointments != null)
                         {
-                           foreach (var bookedAppointment in bookedApptResponse.Appointments)
+                            foreach (var bookedAppointment in bookedApptResponse.Appointments)
                             {
                                 if (appointmentTypes.Count > 0)
                                 {
@@ -293,28 +297,31 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                         continue;
                                     }
                                 }
-                                
+
                                 var recordMap = new Dictionary<string, object>();
 
                                 //keys
                                 recordMap["appointmentid"] = bookedAppointment.AppointmentId ?? "0";
-                                
+
                                 //bools
                                 recordMap["coordinatorenterprise"] = bookedAppointment.CoordinatorEnterprise;
                                 recordMap["chargeentrynotrequired"] = bookedAppointment.ChargeEntryNotRequired;
-                                
+
                                 //ints
                                 recordMap["duration"] = bookedAppointment.Duration ?? "";
                                 recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId ?? "";
                                 recordMap["copay"] = bookedAppointment.Copay ?? "";
-                                
+
                                 if (bookedAppointment.AppointmentCopay != null)
                                 {
-                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
-                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
-                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
+                                    recordMap["appointmentcopay.collectedforother"] =
+                                        bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
+                                    recordMap["appointmentcopay.collectedforappointment"] =
+                                        bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
+                                    recordMap["appointmentcopay.insurancecopay"] =
+                                        bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
                                 }
-                                
+
                                 //strings
                                 recordMap["date"] = bookedAppointment.Date ?? "";
                                 recordMap["starttime"] = bookedAppointment.StartTime ?? "";
@@ -322,7 +329,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["appointmentstatus"] = bookedAppointment.AppointmentStatus ?? "";
                                 recordMap["scheduledby"] = bookedAppointment.ScheduledBy ?? "";
                                 recordMap["patientid"] = bookedAppointment.PatientId ?? "";
-                                recordMap["templateappointmenttypeid"] = bookedAppointment.TemplateAppointmentTypeId ?? "";
+                                recordMap["templateappointmenttypeid"] =
+                                    bookedAppointment.TemplateAppointmentTypeId ?? "";
                                 recordMap["lastmodifiedby"] = bookedAppointment.LastModifiedBy ?? "";
                                 recordMap["appointmenttypeid"] = bookedAppointment.AppointmentTypeId;
                                 recordMap["lastmodified"] = bookedAppointment.LastModified ?? "";
@@ -330,18 +338,21 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["providerid"] = bookedAppointment.ProviderId ?? "";
                                 recordMap["scheduleddatetime"] = bookedAppointment.ScheduledDateTime ?? "";
                                 recordMap["templateappointmentid"] = bookedAppointment.TemplateAppointmentId ?? "";
-                                recordMap["patientappointmenttypename"] = bookedAppointment.PatientAppointmentTypeName ?? "";
-                                    
+                                recordMap["patientappointmenttypename"] =
+                                    bookedAppointment.PatientAppointmentTypeName ?? "";
+
                                 //Patient query
-                                
-                                var patientPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/{bookedAppointment.PatientId.ToString()}";
-                                
+
+                                var patientPath =
+                                    $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/{bookedAppointment.PatientId.ToString()}";
+
                                 var patientResult = await apiClient.GetAsync(patientPath);
-                                
+
                                 if (!patientResult.IsSuccessStatusCode)
                                 {
                                     throw new Exception(patientResult.Content.ReadAsStringAsync().ToString());
                                 }
+
                                 var patientResponses =
                                     JsonConvert.DeserializeObject<List<PatientResponse>>(
                                         await patientResult.Content.ReadAsStringAsync());
@@ -355,8 +366,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                     };
                                 }
 
-                                var patientResponse = patientResponses[0]; //patient received as a list of one patient object
-                                
+                                var patientResponse =
+                                    patientResponses[0]; //patient received as a list of one patient object
+
                                 //strings
                                 recordMap["patient.racename"] = patientResponse.Racename ?? "";
                                 recordMap["patient.email"] = patientResponse.Email ?? "";
@@ -384,7 +396,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.patientphotourl"] = patientResponse.Patientphotourl ?? "";
                                 recordMap["patient.mobilephone"] = patientResponse.Mobilephone ?? "";
                                 recordMap["patient.registrationdate"] = patientResponse.Registrationdate ?? "";
-                                recordMap["patient.caresummarydeliverypreference"] = patientResponse.Caresummarydeliverypreference ?? "";
+                                recordMap["patient.caresummarydeliverypreference"] =
+                                    patientResponse.Caresummarydeliverypreference ?? "";
                                 recordMap["patient.guarantorlastname"] = patientResponse.Guarantorlastname ?? "";
                                 recordMap["patient.firstname"] = patientResponse.Firstname ?? "";
                                 recordMap["patient.guarantorcountrycode"] = patientResponse.Guarantorcountrycode ?? "";
@@ -392,7 +405,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.state"] = patientResponse.State ?? "";
                                 recordMap["patient.dob"] = patientResponse.Dob ?? "";
                                 recordMap["patient.patientid"] = patientResponse.Patientid ?? "";
-                                recordMap["patient.guarantorrelationshiptopatient"] = patientResponse.Guarantorrelationshiptopatient ?? "";
+                                recordMap["patient.guarantorrelationshiptopatient"] =
+                                    patientResponse.Guarantorrelationshiptopatient ?? "";
                                 recordMap["patient.address1"] = patientResponse.Address1 ?? "";
                                 recordMap["patient.guarantorphone"] = patientResponse.Guarantorphone ?? "";
                                 recordMap["patient.driverslicenseurl"] = patientResponse.Driverslicenseurl ?? "";
@@ -401,9 +415,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.guarantoraddress1"] = patientResponse.Guarantoraddress1 ?? "";
                                 recordMap["patient.maritalstatusname"] = patientResponse.Maritalstatusname ?? "";
                                 recordMap["patient.countrycode3166"] = patientResponse.Countrycode3166 ?? "";
-                                recordMap["patient.guarantorcountrycode3166"] = patientResponse.Guarantorcountrycode3166 ?? "";
+                                recordMap["patient.guarantorcountrycode3166"] =
+                                    patientResponse.Guarantorcountrycode3166 ?? "";
                                 recordMap["patient.race"] = string.Join(',', patientResponse.Race) ?? "";
-                                
+
                                 //bools
                                 recordMap["patient.contactpreference_lab_phone"] =
                                     patientResponse.ContactpreferenceLabPhone;
@@ -438,19 +453,20 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.portaltermsonfile"] = patientResponse.Portaltermsonfile;
                                 recordMap["patient.privacyinformationverified"] =
                                     patientResponse.Privacyinformationverified;
-                                recordMap["patient.contactpreference_lab_email"] = patientResponse.ContactpreferenceLabEmail;
+                                recordMap["patient.contactpreference_lab_email"] =
+                                    patientResponse.ContactpreferenceLabEmail;
                                 recordMap["patient.contactpreference_announcement_sms"] =
                                     patientResponse.ContactpreferenceAnnouncementSms;
                                 recordMap["patient.emailexists"] = patientResponse.Emailexists;
-                                
+
                                 yield return new Record
                                 {
                                     Action = Record.Types.Action.Upsert,
                                     DataJson = JsonConvert.SerializeObject(recordMap)
-                                }; 
-                            } 
+                                };
+                            }
                         }
-                        
+
                         if (string.IsNullOrWhiteSpace(bookedApptResponse.Next))
                         {
                             hasMore = false;
@@ -476,6 +492,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 }
             }
         }
+
         private class BookedAppointmentsEndpoint_Today : Endpoint
         {
             public override bool ShouldGetStaticSchema { get; set; } = true;
@@ -484,15 +501,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
             {
                 List<string> staticSchemaProperties = new List<string>()
                 {
-                    
                     //From: BookedAppointments
                     //keys
                     "appointmentid",
-                    
+
                     //bools
                     "coordinatorenterprise",
                     "chargeentrynotrequired",
-                    
+
                     //ints
                     "duration",
                     "hl7providerid",
@@ -500,7 +516,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "appointmentcopay.collectedforappointment",
                     "appointmentcopay.insurancecopay",
                     "copay",
-                    
+
                     //strings
                     "date",
                     "starttime",
@@ -517,7 +533,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "scheduleddatetime",
                     "templateappointmentid",
                     "patientappointmenttypename",
-                    
+
                     //From: Patient
                     //strings
                     "patient.racename",
@@ -565,7 +581,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "patient.countrycode3166",
                     "patient.guarantorcountrycode3166",
                     "patient.race",
-                    
+
                     //bools
                     "patient.contactpreference_lab_phone",
                     "patient.consenttotext",
@@ -592,7 +608,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "patient.contactpreference_announcement_sms",
                     "patient.emailexists",
                 };
-                
+
                 var properties = new List<Property>();
 
                 foreach (var staticProperty in staticSchemaProperties)
@@ -635,7 +651,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case ("patient.privacyinformationverified"):
                         case ("patient.contactpreference_lab_email"):
                         case ("patient.contactpreference_announcement_sms"):
-                        case ("patient.emailexists"): 
+                        case ("patient.emailexists"):
                             property.IsKey = false;
                             property.Type = PropertyType.Bool;
                             property.TypeAtSource = "boolean";
@@ -646,20 +662,23 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.TypeAtSource = "string";
                             break;
                     }
+
                     properties.Add(property);
                 }
+
                 schema.Properties.Clear();
                 schema.Properties.AddRange(properties);
 
                 schema.DataFlowDirection = GetDataFlowDirection();
-                
+
                 return schema;
             }
 
-            public override async IAsyncEnumerable<Record> ReadRecordsAsync(IApiClient apiClient, Schema schema, bool isDiscoverRead = false)
+            public override async IAsyncEnumerable<Record> ReadRecordsAsync(IApiClient apiClient, Schema schema,
+                bool isDiscoverRead = false)
             {
                 var settings = apiClient.GetSettings();
-                
+
                 var departmentPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/departments";
 
                 var departmentResult = await apiClient.GetAsync(departmentPath);
@@ -668,21 +687,22 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     throw new Exception(departmentResult.ReasonPhrase);
                 }
+
                 if (!departmentResult.IsSuccessStatusCode)
                 {
                     throw new Exception(departmentResult.Content.ReadAsStringAsync().ToString());
                 }
-                
+
                 var departmentResponse =
                     JsonConvert.DeserializeObject<DepartmentResponse>(
                         await departmentResult.Content.ReadAsStringAsync());
 
                 var startDate = DateTime.Today.ToString("MM/dd/yyyy");
                 var endDate = DateTime.Today.ToString("MM/dd/yyyy");
-                var settingsDepartments = settings.Departments.Split(',').ToList();
+                var settingsDepartments = settings.Departments?.Split(',').ToList();
                 var departments = new List<Department> { };
-                
-                if (settingsDepartments.Count > 0)
+
+                if (settingsDepartments != null && settingsDepartments.Count > 0)
                 {
                     foreach (var department in settingsDepartments)
                     {
@@ -693,30 +713,29 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     departments = departmentResponse.Departments;
                 }
-                
-                var settingsAppointmentTypes = settings.AppointmentTypes.Split(',').ToList();
+
+                var settingsAppointmentTypes = settings.AppointmentTypes?.Split(',').ToList();
                 var appointmentTypes = new List<string> { };
-                
-                if (settingsAppointmentTypes.Count > 0)
+
+                if (settingsAppointmentTypes != null && settingsAppointmentTypes.Count > 0)
                 {
                     foreach (var appointmentType in settingsAppointmentTypes)
                     {
                         appointmentTypes.Add(appointmentType);
                     }
                 }
-                
+
                 foreach (var department in departments)
                 {
                     var thisDepartmentId = department.DepartmentId ?? "";
 
                     var bookedApptsPath =
                         $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/appointments/booked?startdate={startDate}&enddate={endDate}&departmentid={thisDepartmentId}";
-                    
+
                     var hasMore = false;
 
                     do
                     {
-                        
                         var bookedApptsResult = await apiClient.GetAsync(bookedApptsPath);
 
                         if (!bookedApptsResult.IsSuccessStatusCode)
@@ -726,23 +745,23 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 var errorResponse =
                                     JsonConvert.DeserializeObject<Error>(
                                         await bookedApptsResult.Content.ReadAsStringAsync());
-                                    
-                                throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage) ? 
-                                    bookedApptsResult.Content.ReadAsStringAsync().ToString() : errorResponse.ErrorMessage);
+
+                                throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage)
+                                    ? bookedApptsResult.Content.ReadAsStringAsync().ToString()
+                                    : errorResponse.ErrorMessage);
                             }
                             catch
                             {
                                 throw new Exception(bookedApptsResult.Content.ReadAsStringAsync().ToString());
                             }
-                            
                         }
-                    
+
                         var bookedApptResponse = JsonConvert.DeserializeObject<BookedAppointmentResponse>(
                             await bookedApptsResult.Content.ReadAsStringAsync());
-                        
+
                         if (bookedApptResponse.Appointments != null)
                         {
-                           foreach (var bookedAppointment in bookedApptResponse.Appointments)
+                            foreach (var bookedAppointment in bookedApptResponse.Appointments)
                             {
                                 if (appointmentTypes.Count > 0)
                                 {
@@ -751,28 +770,31 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                         continue;
                                     }
                                 }
-                                
+
                                 var recordMap = new Dictionary<string, object>();
 
                                 //keys
                                 recordMap["appointmentid"] = bookedAppointment.AppointmentId ?? "0";
-                                
+
                                 //bools
                                 recordMap["coordinatorenterprise"] = bookedAppointment.CoordinatorEnterprise;
                                 recordMap["chargeentrynotrequired"] = bookedAppointment.ChargeEntryNotRequired;
-                                
+
                                 //ints
                                 recordMap["duration"] = bookedAppointment.Duration ?? "";
                                 recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId ?? "";
                                 recordMap["copay"] = bookedAppointment.Copay ?? "";
-                                
+
                                 if (bookedAppointment.AppointmentCopay != null)
                                 {
-                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
-                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
-                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
+                                    recordMap["appointmentcopay.collectedforother"] =
+                                        bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
+                                    recordMap["appointmentcopay.collectedforappointment"] =
+                                        bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
+                                    recordMap["appointmentcopay.insurancecopay"] =
+                                        bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
                                 }
-                                
+
                                 //strings
                                 recordMap["date"] = bookedAppointment.Date ?? "";
                                 recordMap["starttime"] = bookedAppointment.StartTime ?? "";
@@ -780,7 +802,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["appointmentstatus"] = bookedAppointment.AppointmentStatus ?? "";
                                 recordMap["scheduledby"] = bookedAppointment.ScheduledBy ?? "";
                                 recordMap["patientid"] = bookedAppointment.PatientId ?? "";
-                                recordMap["templateappointmenttypeid"] = bookedAppointment.TemplateAppointmentTypeId ?? "";
+                                recordMap["templateappointmenttypeid"] =
+                                    bookedAppointment.TemplateAppointmentTypeId ?? "";
                                 recordMap["lastmodifiedby"] = bookedAppointment.LastModifiedBy ?? "";
                                 recordMap["appointmenttypeid"] = bookedAppointment.AppointmentTypeId;
                                 recordMap["lastmodified"] = bookedAppointment.LastModified ?? "";
@@ -788,18 +811,21 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["providerid"] = bookedAppointment.ProviderId ?? "";
                                 recordMap["scheduleddatetime"] = bookedAppointment.ScheduledDateTime ?? "";
                                 recordMap["templateappointmentid"] = bookedAppointment.TemplateAppointmentId ?? "";
-                                recordMap["patientappointmenttypename"] = bookedAppointment.PatientAppointmentTypeName ?? "";
-                                    
+                                recordMap["patientappointmenttypename"] =
+                                    bookedAppointment.PatientAppointmentTypeName ?? "";
+
                                 //Patient query
-                                
-                                var patientPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/{bookedAppointment.PatientId.ToString()}";
-                                
+
+                                var patientPath =
+                                    $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/{bookedAppointment.PatientId.ToString()}";
+
                                 var patientResult = await apiClient.GetAsync(patientPath);
-                                
+
                                 if (!patientResult.IsSuccessStatusCode)
                                 {
                                     throw new Exception(patientResult.Content.ReadAsStringAsync().ToString());
                                 }
+
                                 var patientResponses =
                                     JsonConvert.DeserializeObject<List<PatientResponse>>(
                                         await patientResult.Content.ReadAsStringAsync());
@@ -813,8 +839,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                     };
                                 }
 
-                                var patientResponse = patientResponses[0]; //patient received as a list of one patient object
-                                
+                                var patientResponse =
+                                    patientResponses[0]; //patient received as a list of one patient object
+
                                 //strings
                                 recordMap["patient.racename"] = patientResponse.Racename ?? "";
                                 recordMap["patient.email"] = patientResponse.Email ?? "";
@@ -842,7 +869,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.patientphotourl"] = patientResponse.Patientphotourl ?? "";
                                 recordMap["patient.mobilephone"] = patientResponse.Mobilephone ?? "";
                                 recordMap["patient.registrationdate"] = patientResponse.Registrationdate ?? "";
-                                recordMap["patient.caresummarydeliverypreference"] = patientResponse.Caresummarydeliverypreference ?? "";
+                                recordMap["patient.caresummarydeliverypreference"] =
+                                    patientResponse.Caresummarydeliverypreference ?? "";
                                 recordMap["patient.guarantorlastname"] = patientResponse.Guarantorlastname ?? "";
                                 recordMap["patient.firstname"] = patientResponse.Firstname ?? "";
                                 recordMap["patient.guarantorcountrycode"] = patientResponse.Guarantorcountrycode ?? "";
@@ -850,7 +878,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.state"] = patientResponse.State ?? "";
                                 recordMap["patient.dob"] = patientResponse.Dob ?? "";
                                 recordMap["patient.patientid"] = patientResponse.Patientid ?? "";
-                                recordMap["patient.guarantorrelationshiptopatient"] = patientResponse.Guarantorrelationshiptopatient ?? "";
+                                recordMap["patient.guarantorrelationshiptopatient"] =
+                                    patientResponse.Guarantorrelationshiptopatient ?? "";
                                 recordMap["patient.address1"] = patientResponse.Address1 ?? "";
                                 recordMap["patient.guarantorphone"] = patientResponse.Guarantorphone ?? "";
                                 recordMap["patient.driverslicenseurl"] = patientResponse.Driverslicenseurl ?? "";
@@ -859,9 +888,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.guarantoraddress1"] = patientResponse.Guarantoraddress1 ?? "";
                                 recordMap["patient.maritalstatusname"] = patientResponse.Maritalstatusname ?? "";
                                 recordMap["patient.countrycode3166"] = patientResponse.Countrycode3166 ?? "";
-                                recordMap["patient.guarantorcountrycode3166"] = patientResponse.Guarantorcountrycode3166 ?? "";
+                                recordMap["patient.guarantorcountrycode3166"] =
+                                    patientResponse.Guarantorcountrycode3166 ?? "";
                                 recordMap["patient.race"] = string.Join(',', patientResponse.Race) ?? "";
-                                
+
                                 //bools
                                 recordMap["patient.contactpreference_lab_phone"] =
                                     patientResponse.ContactpreferenceLabPhone;
@@ -896,19 +926,20 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.portaltermsonfile"] = patientResponse.Portaltermsonfile;
                                 recordMap["patient.privacyinformationverified"] =
                                     patientResponse.Privacyinformationverified;
-                                recordMap["patient.contactpreference_lab_email"] = patientResponse.ContactpreferenceLabEmail;
+                                recordMap["patient.contactpreference_lab_email"] =
+                                    patientResponse.ContactpreferenceLabEmail;
                                 recordMap["patient.contactpreference_announcement_sms"] =
                                     patientResponse.ContactpreferenceAnnouncementSms;
                                 recordMap["patient.emailexists"] = patientResponse.Emailexists;
-                                
+
                                 yield return new Record
                                 {
                                     Action = Record.Types.Action.Upsert,
                                     DataJson = JsonConvert.SerializeObject(recordMap)
-                                }; 
-                            } 
+                                };
+                            }
                         }
-                        
+
                         if (string.IsNullOrWhiteSpace(bookedApptResponse.Next))
                         {
                             hasMore = false;
@@ -934,6 +965,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 }
             }
         }
+
         private class BookedAppointmentsEndpoint_Yesterday : Endpoint
         {
             public override bool ShouldGetStaticSchema { get; set; } = true;
@@ -942,15 +974,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
             {
                 List<string> staticSchemaProperties = new List<string>()
                 {
-                    
                     //From: BookedAppointments
                     //keys
                     "appointmentid",
-                    
+
                     //bools
                     "coordinatorenterprise",
                     "chargeentrynotrequired",
-                    
+
                     //ints
                     "duration",
                     "hl7providerid",
@@ -958,7 +989,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "appointmentcopay.collectedforappointment",
                     "appointmentcopay.insurancecopay",
                     "copay",
-                    
+
                     //strings
                     "date",
                     "starttime",
@@ -975,7 +1006,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "scheduleddatetime",
                     "templateappointmentid",
                     "patientappointmenttypename",
-                    
+
                     //From: Patient
                     //strings
                     "patient.racename",
@@ -1023,7 +1054,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "patient.countrycode3166",
                     "patient.guarantorcountrycode3166",
                     "patient.race",
-                    
+
                     //bools
                     "patient.contactpreference_lab_phone",
                     "patient.consenttotext",
@@ -1050,7 +1081,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "patient.contactpreference_announcement_sms",
                     "patient.emailexists",
                 };
-                
+
                 var properties = new List<Property>();
 
                 foreach (var staticProperty in staticSchemaProperties)
@@ -1093,7 +1124,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case ("patient.privacyinformationverified"):
                         case ("patient.contactpreference_lab_email"):
                         case ("patient.contactpreference_announcement_sms"):
-                        case ("patient.emailexists"): 
+                        case ("patient.emailexists"):
                             property.IsKey = false;
                             property.Type = PropertyType.Bool;
                             property.TypeAtSource = "boolean";
@@ -1104,20 +1135,23 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.TypeAtSource = "string";
                             break;
                     }
+
                     properties.Add(property);
                 }
+
                 schema.Properties.Clear();
                 schema.Properties.AddRange(properties);
 
                 schema.DataFlowDirection = GetDataFlowDirection();
-                
+
                 return schema;
             }
 
-            public override async IAsyncEnumerable<Record> ReadRecordsAsync(IApiClient apiClient, Schema schema, bool isDiscoverRead = false)
+            public override async IAsyncEnumerable<Record> ReadRecordsAsync(IApiClient apiClient, Schema schema,
+                bool isDiscoverRead = false)
             {
                 var settings = apiClient.GetSettings();
-                
+
                 var departmentPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/departments";
 
                 var departmentResult = await apiClient.GetAsync(departmentPath);
@@ -1126,20 +1160,21 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     throw new Exception(departmentResult.ReasonPhrase);
                 }
+
                 if (!departmentResult.IsSuccessStatusCode)
                 {
                     throw new Exception(departmentResult.Content.ReadAsStringAsync().ToString());
                 }
-                
+
                 var departmentResponse =
                     JsonConvert.DeserializeObject<DepartmentResponse>(
                         await departmentResult.Content.ReadAsStringAsync());
 
                 var startDate = DateTime.Today.AddDays(-1).ToString("MM/dd/yyyy");
                 var endDate = DateTime.Today.AddDays(-1).ToString("MM/dd/yyyy");
-                var settingsDepartments = settings.Departments.Split(',').ToList();
+                var settingsDepartments = settings.Departments?.Split(',').ToList();
                 var departments = new List<Department> { };
-                
+
                 if (settingsDepartments.Count > 0)
                 {
                     foreach (var department in settingsDepartments)
@@ -1151,30 +1186,29 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     departments = departmentResponse.Departments;
                 }
-                
-                var settingsAppointmentTypes = settings.AppointmentTypes.Split(',').ToList();
+
+                var settingsAppointmentTypes = settings.AppointmentTypes?.Split(',').ToList();
                 var appointmentTypes = new List<string> { };
-                
-                if (settingsAppointmentTypes.Count > 0)
+
+                if (settingsAppointmentTypes != null && settingsAppointmentTypes.Count > 0)
                 {
                     foreach (var appointmentType in settingsAppointmentTypes)
                     {
                         appointmentTypes.Add(appointmentType);
                     }
                 }
-                
+
                 foreach (var department in departments)
                 {
                     var thisDepartmentId = department.DepartmentId ?? "";
 
                     var bookedApptsPath =
                         $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/appointments/booked?startdate={startDate}&enddate={endDate}&departmentid={thisDepartmentId}";
-                    
+
                     var hasMore = false;
 
                     do
                     {
-                        
                         var bookedApptsResult = await apiClient.GetAsync(bookedApptsPath);
 
                         if (!bookedApptsResult.IsSuccessStatusCode)
@@ -1184,23 +1218,23 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 var errorResponse =
                                     JsonConvert.DeserializeObject<Error>(
                                         await bookedApptsResult.Content.ReadAsStringAsync());
-                                    
-                                throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage) ? 
-                                    bookedApptsResult.Content.ReadAsStringAsync().ToString() : errorResponse.ErrorMessage);
+
+                                throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage)
+                                    ? bookedApptsResult.Content.ReadAsStringAsync().ToString()
+                                    : errorResponse.ErrorMessage);
                             }
                             catch
                             {
                                 throw new Exception(bookedApptsResult.Content.ReadAsStringAsync().ToString());
                             }
-                            
                         }
-                    
+
                         var bookedApptResponse = JsonConvert.DeserializeObject<BookedAppointmentResponse>(
                             await bookedApptsResult.Content.ReadAsStringAsync());
-                        
+
                         if (bookedApptResponse.Appointments != null)
                         {
-                           foreach (var bookedAppointment in bookedApptResponse.Appointments)
+                            foreach (var bookedAppointment in bookedApptResponse.Appointments)
                             {
                                 if (appointmentTypes.Count > 0)
                                 {
@@ -1209,28 +1243,31 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                         continue;
                                     }
                                 }
-                                
+
                                 var recordMap = new Dictionary<string, object>();
 
                                 //keys
                                 recordMap["appointmentid"] = bookedAppointment.AppointmentId ?? "0";
-                                
+
                                 //bools
                                 recordMap["coordinatorenterprise"] = bookedAppointment.CoordinatorEnterprise;
                                 recordMap["chargeentrynotrequired"] = bookedAppointment.ChargeEntryNotRequired;
-                                
+
                                 //ints
                                 recordMap["duration"] = bookedAppointment.Duration ?? "";
                                 recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId ?? "";
                                 recordMap["copay"] = bookedAppointment.Copay ?? "";
-                                
+
                                 if (bookedAppointment.AppointmentCopay != null)
                                 {
-                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
-                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
-                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
+                                    recordMap["appointmentcopay.collectedforother"] =
+                                        bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
+                                    recordMap["appointmentcopay.collectedforappointment"] =
+                                        bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
+                                    recordMap["appointmentcopay.insurancecopay"] =
+                                        bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
                                 }
-                                
+
                                 //strings
                                 recordMap["date"] = bookedAppointment.Date ?? "";
                                 recordMap["starttime"] = bookedAppointment.StartTime ?? "";
@@ -1238,7 +1275,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["appointmentstatus"] = bookedAppointment.AppointmentStatus ?? "";
                                 recordMap["scheduledby"] = bookedAppointment.ScheduledBy ?? "";
                                 recordMap["patientid"] = bookedAppointment.PatientId ?? "";
-                                recordMap["templateappointmenttypeid"] = bookedAppointment.TemplateAppointmentTypeId ?? "";
+                                recordMap["templateappointmenttypeid"] =
+                                    bookedAppointment.TemplateAppointmentTypeId ?? "";
                                 recordMap["lastmodifiedby"] = bookedAppointment.LastModifiedBy ?? "";
                                 recordMap["appointmenttypeid"] = bookedAppointment.AppointmentTypeId;
                                 recordMap["lastmodified"] = bookedAppointment.LastModified ?? "";
@@ -1246,18 +1284,21 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["providerid"] = bookedAppointment.ProviderId ?? "";
                                 recordMap["scheduleddatetime"] = bookedAppointment.ScheduledDateTime ?? "";
                                 recordMap["templateappointmentid"] = bookedAppointment.TemplateAppointmentId ?? "";
-                                recordMap["patientappointmenttypename"] = bookedAppointment.PatientAppointmentTypeName ?? "";
-                                    
+                                recordMap["patientappointmenttypename"] =
+                                    bookedAppointment.PatientAppointmentTypeName ?? "";
+
                                 //Patient query
-                                
-                                var patientPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/{bookedAppointment.PatientId.ToString()}";
-                                
+
+                                var patientPath =
+                                    $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/{bookedAppointment.PatientId.ToString()}";
+
                                 var patientResult = await apiClient.GetAsync(patientPath);
-                                
+
                                 if (!patientResult.IsSuccessStatusCode)
                                 {
                                     throw new Exception(patientResult.Content.ReadAsStringAsync().ToString());
                                 }
+
                                 var patientResponses =
                                     JsonConvert.DeserializeObject<List<PatientResponse>>(
                                         await patientResult.Content.ReadAsStringAsync());
@@ -1271,8 +1312,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                     };
                                 }
 
-                                var patientResponse = patientResponses[0]; //patient received as a list of one patient object
-                                
+                                var patientResponse =
+                                    patientResponses[0]; //patient received as a list of one patient object
+
                                 //strings
                                 recordMap["patient.racename"] = patientResponse.Racename ?? "";
                                 recordMap["patient.email"] = patientResponse.Email ?? "";
@@ -1300,7 +1342,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.patientphotourl"] = patientResponse.Patientphotourl ?? "";
                                 recordMap["patient.mobilephone"] = patientResponse.Mobilephone ?? "";
                                 recordMap["patient.registrationdate"] = patientResponse.Registrationdate ?? "";
-                                recordMap["patient.caresummarydeliverypreference"] = patientResponse.Caresummarydeliverypreference ?? "";
+                                recordMap["patient.caresummarydeliverypreference"] =
+                                    patientResponse.Caresummarydeliverypreference ?? "";
                                 recordMap["patient.guarantorlastname"] = patientResponse.Guarantorlastname ?? "";
                                 recordMap["patient.firstname"] = patientResponse.Firstname ?? "";
                                 recordMap["patient.guarantorcountrycode"] = patientResponse.Guarantorcountrycode ?? "";
@@ -1308,7 +1351,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.state"] = patientResponse.State ?? "";
                                 recordMap["patient.dob"] = patientResponse.Dob ?? "";
                                 recordMap["patient.patientid"] = patientResponse.Patientid ?? "";
-                                recordMap["patient.guarantorrelationshiptopatient"] = patientResponse.Guarantorrelationshiptopatient ?? "";
+                                recordMap["patient.guarantorrelationshiptopatient"] =
+                                    patientResponse.Guarantorrelationshiptopatient ?? "";
                                 recordMap["patient.address1"] = patientResponse.Address1 ?? "";
                                 recordMap["patient.guarantorphone"] = patientResponse.Guarantorphone ?? "";
                                 recordMap["patient.driverslicenseurl"] = patientResponse.Driverslicenseurl ?? "";
@@ -1317,9 +1361,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.guarantoraddress1"] = patientResponse.Guarantoraddress1 ?? "";
                                 recordMap["patient.maritalstatusname"] = patientResponse.Maritalstatusname ?? "";
                                 recordMap["patient.countrycode3166"] = patientResponse.Countrycode3166 ?? "";
-                                recordMap["patient.guarantorcountrycode3166"] = patientResponse.Guarantorcountrycode3166 ?? "";
+                                recordMap["patient.guarantorcountrycode3166"] =
+                                    patientResponse.Guarantorcountrycode3166 ?? "";
                                 recordMap["patient.race"] = string.Join(',', patientResponse.Race) ?? "";
-                                
+
                                 //bools
                                 recordMap["patient.contactpreference_lab_phone"] =
                                     patientResponse.ContactpreferenceLabPhone;
@@ -1354,19 +1399,20 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.portaltermsonfile"] = patientResponse.Portaltermsonfile;
                                 recordMap["patient.privacyinformationverified"] =
                                     patientResponse.Privacyinformationverified;
-                                recordMap["patient.contactpreference_lab_email"] = patientResponse.ContactpreferenceLabEmail;
+                                recordMap["patient.contactpreference_lab_email"] =
+                                    patientResponse.ContactpreferenceLabEmail;
                                 recordMap["patient.contactpreference_announcement_sms"] =
                                     patientResponse.ContactpreferenceAnnouncementSms;
                                 recordMap["patient.emailexists"] = patientResponse.Emailexists;
-                                
+
                                 yield return new Record
                                 {
                                     Action = Record.Types.Action.Upsert,
                                     DataJson = JsonConvert.SerializeObject(recordMap)
-                                }; 
-                            } 
+                                };
+                            }
                         }
-                        
+
                         if (string.IsNullOrWhiteSpace(bookedApptResponse.Next))
                         {
                             hasMore = false;
@@ -1392,6 +1438,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 }
             }
         }
+
         private class BookedAppointmentsEndpoint_Last7Days : Endpoint
         {
             public override bool ShouldGetStaticSchema { get; set; } = true;
@@ -1400,15 +1447,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
             {
                 List<string> staticSchemaProperties = new List<string>()
                 {
-                    
                     //From: BookedAppointments
                     //keys
                     "appointmentid",
-                    
+
                     //bools
                     "coordinatorenterprise",
                     "chargeentrynotrequired",
-                    
+
                     //ints
                     "duration",
                     "hl7providerid",
@@ -1416,7 +1462,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "appointmentcopay.collectedforappointment",
                     "appointmentcopay.insurancecopay",
                     "copay",
-                    
+
                     //strings
                     "date",
                     "starttime",
@@ -1433,7 +1479,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "scheduleddatetime",
                     "templateappointmentid",
                     "patientappointmenttypename",
-                    
+
                     //From: Patient
                     //strings
                     "patient.racename",
@@ -1481,7 +1527,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "patient.countrycode3166",
                     "patient.guarantorcountrycode3166",
                     "patient.race",
-                    
+
                     //bools
                     "patient.contactpreference_lab_phone",
                     "patient.consenttotext",
@@ -1508,7 +1554,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     "patient.contactpreference_announcement_sms",
                     "patient.emailexists",
                 };
-                
+
                 var properties = new List<Property>();
 
                 foreach (var staticProperty in staticSchemaProperties)
@@ -1551,7 +1597,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         case ("patient.privacyinformationverified"):
                         case ("patient.contactpreference_lab_email"):
                         case ("patient.contactpreference_announcement_sms"):
-                        case ("patient.emailexists"): 
+                        case ("patient.emailexists"):
                             property.IsKey = false;
                             property.Type = PropertyType.Bool;
                             property.TypeAtSource = "boolean";
@@ -1562,20 +1608,23 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                             property.TypeAtSource = "string";
                             break;
                     }
+
                     properties.Add(property);
                 }
+
                 schema.Properties.Clear();
                 schema.Properties.AddRange(properties);
 
                 schema.DataFlowDirection = GetDataFlowDirection();
-                
+
                 return schema;
             }
 
-            public override async IAsyncEnumerable<Record> ReadRecordsAsync(IApiClient apiClient, Schema schema, bool isDiscoverRead = false)
+            public override async IAsyncEnumerable<Record> ReadRecordsAsync(IApiClient apiClient, Schema schema,
+                bool isDiscoverRead = false)
             {
                 var settings = apiClient.GetSettings();
-                
+
                 var departmentPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/departments";
 
                 var departmentResult = await apiClient.GetAsync(departmentPath);
@@ -1584,11 +1633,12 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     throw new Exception(departmentResult.ReasonPhrase);
                 }
+
                 if (!departmentResult.IsSuccessStatusCode)
                 {
                     throw new Exception(departmentResult.Content.ReadAsStringAsync().ToString());
                 }
-                
+
                 var departmentResponse =
                     JsonConvert.DeserializeObject<DepartmentResponse>(
                         await departmentResult.Content.ReadAsStringAsync());
@@ -1596,10 +1646,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 var startDate = DateTime.Today.AddDays(-7).ToString("MM/dd/yyyy");
                 var endDate = DateTime.Today.ToString("MM/dd/yyyy");
 
-                var settingsDepartments = settings.Departments.Split(',').ToList();
+                var settingsDepartments = settings.Departments?.Split(',').ToList();
                 var departments = new List<Department> { };
-                
-                if (settingsDepartments.Count > 0)
+
+                if (settingsDepartments != null && settingsDepartments.Count > 0)
                 {
                     foreach (var department in settingsDepartments)
                     {
@@ -1610,30 +1660,29 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 {
                     departments = departmentResponse.Departments;
                 }
-                
-                var settingsAppointmentTypes = settings.AppointmentTypes.Split(',').ToList();
+
+                var settingsAppointmentTypes = settings.AppointmentTypes?.Split(',').ToList();
                 var appointmentTypes = new List<string> { };
-                
-                if (settingsAppointmentTypes.Count > 0)
+
+                if (settingsAppointmentTypes != null && settingsAppointmentTypes.Count > 0)
                 {
                     foreach (var appointmentType in settingsAppointmentTypes)
                     {
                         appointmentTypes.Add(appointmentType);
                     }
                 }
-                
+
                 foreach (var department in departments)
                 {
                     var thisDepartmentId = department.DepartmentId ?? "";
 
                     var bookedApptsPath =
                         $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/appointments/booked?startdate={startDate}&enddate={endDate}&departmentid={thisDepartmentId}";
-                    
+
                     var hasMore = false;
 
                     do
                     {
-                        
                         var bookedApptsResult = await apiClient.GetAsync(bookedApptsPath);
 
                         if (!bookedApptsResult.IsSuccessStatusCode)
@@ -1643,23 +1692,23 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 var errorResponse =
                                     JsonConvert.DeserializeObject<Error>(
                                         await bookedApptsResult.Content.ReadAsStringAsync());
-                                    
-                                throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage) ? 
-                                    bookedApptsResult.Content.ReadAsStringAsync().ToString() : errorResponse.ErrorMessage);
+
+                                throw new Exception(string.IsNullOrWhiteSpace(errorResponse.ErrorMessage)
+                                    ? bookedApptsResult.Content.ReadAsStringAsync().ToString()
+                                    : errorResponse.ErrorMessage);
                             }
                             catch
                             {
                                 throw new Exception(bookedApptsResult.Content.ReadAsStringAsync().ToString());
                             }
-                            
                         }
-                    
+
                         var bookedApptResponse = JsonConvert.DeserializeObject<BookedAppointmentResponse>(
                             await bookedApptsResult.Content.ReadAsStringAsync());
-                        
+
                         if (bookedApptResponse.Appointments != null)
                         {
-                           foreach (var bookedAppointment in bookedApptResponse.Appointments)
+                            foreach (var bookedAppointment in bookedApptResponse.Appointments)
                             {
                                 if (appointmentTypes.Count > 0)
                                 {
@@ -1668,28 +1717,31 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                         continue;
                                     }
                                 }
-                                
+
                                 var recordMap = new Dictionary<string, object>();
 
                                 //keys
                                 recordMap["appointmentid"] = bookedAppointment.AppointmentId ?? "0";
-                                
+
                                 //bools
                                 recordMap["coordinatorenterprise"] = bookedAppointment.CoordinatorEnterprise;
                                 recordMap["chargeentrynotrequired"] = bookedAppointment.ChargeEntryNotRequired;
-                                
+
                                 //ints
                                 recordMap["duration"] = bookedAppointment.Duration ?? "";
                                 recordMap["hl7providerid"] = bookedAppointment.Hl7ProviderId ?? "";
                                 recordMap["copay"] = bookedAppointment.Copay ?? "";
-                                
+
                                 if (bookedAppointment.AppointmentCopay != null)
                                 {
-                                    recordMap["appointmentcopay.collectedforother"] = bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
-                                    recordMap["appointmentcopay.collectedforappointment"] = bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
-                                    recordMap["appointmentcopay.insurancecopay"] = bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
+                                    recordMap["appointmentcopay.collectedforother"] =
+                                        bookedAppointment.AppointmentCopay.CollectedForOther ?? "";
+                                    recordMap["appointmentcopay.collectedforappointment"] =
+                                        bookedAppointment.AppointmentCopay.CollectedForAppointment ?? "";
+                                    recordMap["appointmentcopay.insurancecopay"] =
+                                        bookedAppointment.AppointmentCopay.InsuranceCopay ?? "";
                                 }
-                                
+
                                 //strings
                                 recordMap["date"] = bookedAppointment.Date ?? "";
                                 recordMap["starttime"] = bookedAppointment.StartTime ?? "";
@@ -1697,7 +1749,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["appointmentstatus"] = bookedAppointment.AppointmentStatus ?? "";
                                 recordMap["scheduledby"] = bookedAppointment.ScheduledBy ?? "";
                                 recordMap["patientid"] = bookedAppointment.PatientId ?? "";
-                                recordMap["templateappointmenttypeid"] = bookedAppointment.TemplateAppointmentTypeId ?? "";
+                                recordMap["templateappointmenttypeid"] =
+                                    bookedAppointment.TemplateAppointmentTypeId ?? "";
                                 recordMap["lastmodifiedby"] = bookedAppointment.LastModifiedBy ?? "";
                                 recordMap["appointmenttypeid"] = bookedAppointment.AppointmentTypeId;
                                 recordMap["lastmodified"] = bookedAppointment.LastModified ?? "";
@@ -1705,18 +1758,21 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["providerid"] = bookedAppointment.ProviderId ?? "";
                                 recordMap["scheduleddatetime"] = bookedAppointment.ScheduledDateTime ?? "";
                                 recordMap["templateappointmentid"] = bookedAppointment.TemplateAppointmentId ?? "";
-                                recordMap["patientappointmenttypename"] = bookedAppointment.PatientAppointmentTypeName ?? "";
-                                    
+                                recordMap["patientappointmenttypename"] =
+                                    bookedAppointment.PatientAppointmentTypeName ?? "";
+
                                 //Patient query
-                                
-                                var patientPath = $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/{bookedAppointment.PatientId.ToString()}";
-                                
+
+                                var patientPath =
+                                    $"{settings.GetBaseUrl().TrimEnd('/')}/{settings.PracticeId}/patients/{bookedAppointment.PatientId.ToString()}";
+
                                 var patientResult = await apiClient.GetAsync(patientPath);
-                                
+
                                 if (!patientResult.IsSuccessStatusCode)
                                 {
                                     throw new Exception(patientResult.Content.ReadAsStringAsync().ToString());
                                 }
+
                                 var patientResponses =
                                     JsonConvert.DeserializeObject<List<PatientResponse>>(
                                         await patientResult.Content.ReadAsStringAsync());
@@ -1730,8 +1786,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                     };
                                 }
 
-                                var patientResponse = patientResponses[0]; //patient received as a list of one patient object
-                                
+                                var patientResponse =
+                                    patientResponses[0]; //patient received as a list of one patient object
+
                                 //strings
                                 recordMap["patient.racename"] = patientResponse.Racename ?? "";
                                 recordMap["patient.email"] = patientResponse.Email ?? "";
@@ -1759,7 +1816,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.patientphotourl"] = patientResponse.Patientphotourl ?? "";
                                 recordMap["patient.mobilephone"] = patientResponse.Mobilephone ?? "";
                                 recordMap["patient.registrationdate"] = patientResponse.Registrationdate ?? "";
-                                recordMap["patient.caresummarydeliverypreference"] = patientResponse.Caresummarydeliverypreference ?? "";
+                                recordMap["patient.caresummarydeliverypreference"] =
+                                    patientResponse.Caresummarydeliverypreference ?? "";
                                 recordMap["patient.guarantorlastname"] = patientResponse.Guarantorlastname ?? "";
                                 recordMap["patient.firstname"] = patientResponse.Firstname ?? "";
                                 recordMap["patient.guarantorcountrycode"] = patientResponse.Guarantorcountrycode ?? "";
@@ -1767,7 +1825,8 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.state"] = patientResponse.State ?? "";
                                 recordMap["patient.dob"] = patientResponse.Dob ?? "";
                                 recordMap["patient.patientid"] = patientResponse.Patientid ?? "";
-                                recordMap["patient.guarantorrelationshiptopatient"] = patientResponse.Guarantorrelationshiptopatient ?? "";
+                                recordMap["patient.guarantorrelationshiptopatient"] =
+                                    patientResponse.Guarantorrelationshiptopatient ?? "";
                                 recordMap["patient.address1"] = patientResponse.Address1 ?? "";
                                 recordMap["patient.guarantorphone"] = patientResponse.Guarantorphone ?? "";
                                 recordMap["patient.driverslicenseurl"] = patientResponse.Driverslicenseurl ?? "";
@@ -1776,9 +1835,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.guarantoraddress1"] = patientResponse.Guarantoraddress1 ?? "";
                                 recordMap["patient.maritalstatusname"] = patientResponse.Maritalstatusname ?? "";
                                 recordMap["patient.countrycode3166"] = patientResponse.Countrycode3166 ?? "";
-                                recordMap["patient.guarantorcountrycode3166"] = patientResponse.Guarantorcountrycode3166 ?? "";
+                                recordMap["patient.guarantorcountrycode3166"] =
+                                    patientResponse.Guarantorcountrycode3166 ?? "";
                                 recordMap["patient.race"] = string.Join(',', patientResponse.Race) ?? "";
-                                
+
                                 //bools
                                 recordMap["patient.contactpreference_lab_phone"] =
                                     patientResponse.ContactpreferenceLabPhone;
@@ -1813,19 +1873,20 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                                 recordMap["patient.portaltermsonfile"] = patientResponse.Portaltermsonfile;
                                 recordMap["patient.privacyinformationverified"] =
                                     patientResponse.Privacyinformationverified;
-                                recordMap["patient.contactpreference_lab_email"] = patientResponse.ContactpreferenceLabEmail;
+                                recordMap["patient.contactpreference_lab_email"] =
+                                    patientResponse.ContactpreferenceLabEmail;
                                 recordMap["patient.contactpreference_announcement_sms"] =
                                     patientResponse.ContactpreferenceAnnouncementSms;
                                 recordMap["patient.emailexists"] = patientResponse.Emailexists;
-                                
+
                                 yield return new Record
                                 {
                                     Action = Record.Types.Action.Upsert,
                                     DataJson = JsonConvert.SerializeObject(recordMap)
-                                }; 
-                            }  
+                                };
+                            }
                         }
-                        
+
                         if (string.IsNullOrWhiteSpace(bookedApptResponse.Next))
                         {
                             hasMore = false;
@@ -1852,80 +1913,81 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
             }
         }
 
-        public static readonly Dictionary<string, Endpoint> BookedAppointmentsEndpoints = new Dictionary<string, Endpoint>
-        {
+        public static readonly Dictionary<string, Endpoint> BookedAppointmentsEndpoints =
+            new Dictionary<string, Endpoint>
             {
-                "BookedAppointments_Today", new BookedAppointmentsEndpoint_Today
                 {
-                    Id = "BookedAppointments_Today",
-                    Name = "BookedAppointments_Today",
-                    BasePath = "/appointments/report",
-                    AllPath = "/appointments/report",
-                    PropertiesPath = "/appointments/report",
-                    SupportedActions = new List<EndpointActions>
+                    "BookedAppointments_Today", new BookedAppointmentsEndpoint_Today
                     {
-                        EndpointActions.Get
-                    },
-                    PropertyKeys = new List<string>
+                        Id = "BookedAppointments_Today",
+                        Name = "BookedAppointments_Today",
+                        BasePath = "/appointments/report",
+                        AllPath = "/appointments/report",
+                        PropertiesPath = "/appointments/report",
+                        SupportedActions = new List<EndpointActions>
+                        {
+                            EndpointActions.Get
+                        },
+                        PropertyKeys = new List<string>
+                        {
+                            "hs_unique_creation_key"
+                        }
+                    }
+                },
+                {
+                    "BookedAppointments_Yesterday", new BookedAppointmentsEndpoint_Yesterday
                     {
-                        "hs_unique_creation_key"
+                        Id = "BookedAppointments_Yesterday",
+                        Name = "BookedAppointments_Yesterday",
+                        BasePath = "/appointments/report",
+                        AllPath = "/appointments/report",
+                        PropertiesPath = "/appointments/report",
+                        SupportedActions = new List<EndpointActions>
+                        {
+                            EndpointActions.Get
+                        },
+                        PropertyKeys = new List<string>
+                        {
+                            "hs_unique_creation_key"
+                        }
+                    }
+                },
+                {
+                    "BookedAppointments_Historical", new BookedAppointmentsEndpoint_Historical
+                    {
+                        Id = "BookedAppointments_Historical",
+                        Name = "BookedAppointments_Historical",
+                        BasePath = "/appointments/report",
+                        AllPath = "/appointments/report",
+                        PropertiesPath = "/appointments/report",
+                        SupportedActions = new List<EndpointActions>
+                        {
+                            EndpointActions.Get
+                        },
+                        PropertyKeys = new List<string>
+                        {
+                            "hs_unique_creation_key"
+                        }
+                    }
+                },
+                {
+                    "BookedAppointments_Last7Days", new BookedAppointmentsEndpoint_Last7Days
+                    {
+                        Id = "BookedAppointments_Last7Days",
+                        Name = "BookedAppointments_Last7Days",
+                        BasePath = "/appointments/report",
+                        AllPath = "/appointments/report",
+                        PropertiesPath = "/appointments/report",
+                        SupportedActions = new List<EndpointActions>
+                        {
+                            EndpointActions.Get
+                        },
+                        PropertyKeys = new List<string>
+                        {
+                            "hs_unique_creation_key"
+                        }
                     }
                 }
-            },
-            {
-                "BookedAppointments_Yesterday", new BookedAppointmentsEndpoint_Yesterday
-                {
-                    Id = "BookedAppointments_Yesterday",
-                    Name = "BookedAppointments_Yesterday",
-                    BasePath = "/appointments/report",
-                    AllPath = "/appointments/report",
-                    PropertiesPath = "/appointments/report",
-                    SupportedActions = new List<EndpointActions>
-                    {
-                        EndpointActions.Get
-                    },
-                    PropertyKeys = new List<string>
-                    {
-                        "hs_unique_creation_key"
-                    }
-                }
-            },
-            {
-                "BookedAppointments_Historical", new BookedAppointmentsEndpoint_Historical
-                {
-                    Id = "BookedAppointments_Historical",
-                    Name = "BookedAppointments_Historical",
-                    BasePath = "/appointments/report",
-                    AllPath = "/appointments/report",
-                    PropertiesPath = "/appointments/report",
-                    SupportedActions = new List<EndpointActions>
-                    {
-                        EndpointActions.Get
-                    },
-                    PropertyKeys = new List<string>
-                    {
-                        "hs_unique_creation_key"
-                    }
-                }
-            },
-            {
-                "BookedAppointments_Last7Days", new BookedAppointmentsEndpoint_Last7Days
-                {
-                    Id = "BookedAppointments_Last7Days",
-                    Name = "BookedAppointments_Last7Days",
-                    BasePath = "/appointments/report",
-                    AllPath = "/appointments/report",
-                    PropertiesPath = "/appointments/report",
-                    SupportedActions = new List<EndpointActions>
-                    {
-                        EndpointActions.Get
-                    },
-                    PropertyKeys = new List<string>
-                    {
-                        "hs_unique_creation_key"
-                    }
-                }
-            }
-        };
+            };
     }
 }

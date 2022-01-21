@@ -26,8 +26,8 @@ namespace PluginAthenaHealthTest.Plugin
                 ClientSecret = "",
                 PracticeId = "",
                 ProductionPractice = false,
-                StartDate = "",
-                EndDate = ""
+                StartDate = "01/01/2022",
+                EndDate = "01/31/2022"
             };
         }
 

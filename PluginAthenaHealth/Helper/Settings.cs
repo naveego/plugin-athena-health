@@ -10,9 +10,9 @@ namespace PluginAthenaHealth.Helper
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public string StartDate { get; set; }
-        public string EndDate { get; set; }
-        public string Departments { get; set; }
-        public string AppointmentTypes { get; set; }
+        public string? EndDate { get; set; }
+        public string? Departments { get; set; }
+        public string? AppointmentTypes { get; set; }
         public bool ProductionPractice { get; set; }
 
         /// <summary>
