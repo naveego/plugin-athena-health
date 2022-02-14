@@ -16,5 +16,10 @@ namespace PluginAthenaHealth.API.Utility
         
         public const string UrlPropertyPrefix = "URL";
         public const string BodyPropertyPrefix = "BODY";
+
+        public const string VitalsHeightKey = "HEIGHT";
+        public const string VitalsHeightReadingKey = "VITALS.HEIGHT";
+        public const string VitalsWeightKey = "WEIGHT";
+        public const string VitalsWeightReadingKey = "VITALS.WEIGHT";
     }
 }
