@@ -18,10 +18,6 @@ namespace PluginAthenaHealth.API.Write
 
            var schema = await endpoint.Value.GetStaticSchemaAsync(null, null); //client unneeded
 
-           schema.Id = configureFormData.Name;
-           schema.Name = configureFormData.Name;
-           schema.Query = configureFormData.Name;
-
            configureFormData.Id = endpoint.Value.Id;
            schema.PublisherMetaJson = JsonConvert.SerializeObject(configureFormData);
 

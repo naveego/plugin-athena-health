@@ -34,10 +34,11 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
             {
                 var outSchema = new Schema
                 {
-                    Id = "Patient Chart Upload",
+                    Id = "PatientCharts",
                     Name = "Patient Chart Upload",
                     Description = "",
                     DataFlowDirection = GetDataFlowDirection(),
+                    Query = "PatientCharts"
                 };
                 
                 List<string> staticSchemaProperties = new List<string>()
