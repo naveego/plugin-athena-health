@@ -25,18 +25,11 @@ namespace PluginAthenaHealth.API.Write
                         {"type", "string"},
                         {"title", "Google Cloud Storage Credential Path"},
                         {"description", "If using GCS, enter the path to the credentials key file"}
-                    }},
-                    {"Name", new Dictionary<string, object>
-                    {
-                        {"type", "string"},
-                        {"title", "Name"},
-                        {"description", "Name of the schema"}
                     }}
                 }},
                 {"required", new []
                 {
-                    "FileStorageMethod",
-                    "Name"
+                    "FileStorageMethod"
                 }}
             };
 
