@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Naveego.Sdk.Plugins;
 using Newtonsoft.Json;
 using PluginAthenaHealth.API.Factory;
 using PluginAthenaHealth.API.Utility;
+using PluginAthenaHealth.API.Utility.EndpointHelperEndpoints;
 using PluginAthenaHealth.DataContracts;
 
 namespace PluginAthenaHealth.API.Write
@@ -26,7 +28,9 @@ namespace PluginAthenaHealth.API.Write
 
             try
             {
-                var endpoint = EndpointHelper.GetEndpointForSchema(schema);
+                // var endpoint = EndpointHelper.GetEndpointForSchema(schema);
+                var endpoint = PatientChartsEndpointHelper.PatientChartsEndpoints.ToList()
+                    .First(x => x.Value.Id == "PatientCharts").Value;
 
                 if (endpoint == null)
                 {
