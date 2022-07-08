@@ -60,8 +60,7 @@ namespace PluginAthenaHealth.API.Factory
             
             if (ConfigureWriteFormData.FileStorageMethod == Constants.GoogleCloudStorage)
             {
-                
-                filePath = $"{ServerStatus.Config.TemporaryDirectory.TrimEnd('\\')}\\{fileName}";
+                filePath = Path.Join(ServerStatus.Config.TemporaryDirectory, fileName);
                 
                 if (!File.Exists(filePath))
                 {
