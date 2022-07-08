@@ -115,14 +115,30 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
                     var postObject = new Dictionary<string, string>();
 
-                    var patientId = recordMap["patientid"] ?? "";
-                    var departmentId = recordMap["departmentid"] ?? "";
-                    
-                    var localFilePath = recordMap["localFilePath"] ?? "";
-                    var GCSBucket = recordMap["gcsBucket"] ?? "";
-                    var fileName = recordMap["fileName"] ?? "";
-
-                    var documentSubclass = recordMap["documentSubclass"] ?? "";
+                    if (!recordMap.TryGetValue("patientid", out var patientId))
+                    {
+                        patientId = "";
+                    }
+                    if (!recordMap.TryGetValue("departmentid", out var departmentId))
+                    {
+                        departmentId = "";
+                    }
+                    if (!recordMap.TryGetValue("localFilePath", out var localFilePath))
+                    {
+                        localFilePath = "";
+                    }
+                    if (!recordMap.TryGetValue("gcsBucket", out var GCSBucket))
+                    {
+                        GCSBucket = "";
+                    }
+                    if (!recordMap.TryGetValue("fileName", out var fileName))
+                    {
+                        fileName = "";
+                    }
+                    if (!recordMap.TryGetValue("documentSubclass", out var documentSubclass))
+                    {
+                        documentSubclass = "";
+                    }
 
                     if (string.IsNullOrWhiteSpace(patientId.ToString()))
                     {
@@ -139,6 +155,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     if (string.IsNullOrWhiteSpace(departmentId.ToString()))
                     {
                         throw new Exception($"Missing required departmentId to upload patient chart");
+                    }
+                    if (string.IsNullOrWhiteSpace(localFilePath.ToString()) && string.IsNullOrWhiteSpace(GCSBucket.ToString()))
+                    {
+                        throw new Exception($"Missing required localFilePath or gcsBucket to upload patient chart");
                     }
                     
                     var postPath = $"{settings.PracticeId}/patients/{patientId}/documents/clinicaldocument?practiceid={settings.PracticeId}&Content-Type=application/pdf";
