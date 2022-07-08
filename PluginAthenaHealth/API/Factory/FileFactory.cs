@@ -39,6 +39,7 @@ namespace PluginAthenaHealth.API.Factory
                 var storage = StorageClient.Create(GoogleCredential.FromFile(ConfigureWriteFormData.GoogleCloudStorageCredentialPath));
 
                 var tempPath = Path.Join(ServerStatus.Config.TemporaryDirectory, fileName);
+                Directory.CreateDirectory(Path.GetDirectoryName(tempPath));
                 
                 Logger.Info($"Using {tempPath} as temporary file");
                 using (var outputFile = File.OpenWrite(tempPath))
