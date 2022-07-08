@@ -32,7 +32,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
             public async override Task<Schema> GetStaticSchemaAsync(IApiClient apiClient, Schema schema)
             {
-                schema = new Schema
+                var outSchema = new Schema
                 {
                     Id = "Patient Chart Upload",
                     Name = "Patient Chart Upload",
@@ -91,10 +91,10 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     properties.Add(property);
                 }
 
-                schema.Properties.Clear();
-                schema.Properties.AddRange(properties);
+                outSchema.Properties.Clear();
+                outSchema.Properties.AddRange(properties);
 
-                return schema;
+                return outSchema;
             }
 
             public async override Task<string> WriteRecordAsync(IApiClient apiClient, Schema schema, Record record,

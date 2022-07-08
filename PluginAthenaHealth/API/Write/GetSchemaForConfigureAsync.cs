@@ -10,13 +10,11 @@ namespace PluginAthenaHealth.API.Write
 {
     public static partial class Write
     {
-        public static async Task<Schema> GetSchemaForConfigureAsync(Schema schema)
+        public static async Task<Schema> GetSchemaForConfigureAsync()
         {
             var endpoint = PatientChartsEndpointHelper.PatientChartsEndpoints.ToList().First(x => x.Value.Id == "PatientCharts");
 
-            schema = await endpoint.Value.GetStaticSchemaAsync(null, schema); //client unneeded
-
-            return schema;
+            return await endpoint.Value.GetStaticSchemaAsync(null, null); //client unneeded
         } 
     }
 }

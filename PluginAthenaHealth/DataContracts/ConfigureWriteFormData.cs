@@ -11,6 +11,7 @@ namespace PluginAthenaHealth.DataContracts
     {
         public string FileStorageMethod { get; set; }
         public string GoogleCloudStorageCredentialPath { get; set; }
+        public string Name { get; set; }
         
         /// <summary>
         /// Validates the settings input object
@@ -20,6 +21,10 @@ namespace PluginAthenaHealth.DataContracts
         {
             Logger.Info("Starting validate");
             
+            if (String.IsNullOrEmpty(Name))
+            {
+                throw new Exception("the Name property must be set");
+            }
             
             if (String.IsNullOrEmpty(FileStorageMethod))
             {

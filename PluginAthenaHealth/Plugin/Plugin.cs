@@ -370,9 +370,10 @@ namespace PluginAthenaHealth.Plugin
                 var configureFormData = JsonConvert.DeserializeObject<ConfigureWriteFormData>(request.Form.DataJson);
                 
                 configureFormData.Validate();
-
-                var schema = new Schema();
-                schema = await Write.GetSchemaForConfigureAsync(schema);
+                
+                var schema = await Write.GetSchemaForConfigureAsync();
+                schema.Id = configureFormData.Name;
+                schema.Name = configureFormData.Name;
                 schema.PublisherMetaJson = request.Form.DataJson;
                 
                 return new ConfigureWriteResponse
