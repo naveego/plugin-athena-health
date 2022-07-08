@@ -32,6 +32,14 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
 
             public async override Task<Schema> GetStaticSchemaAsync(IApiClient apiClient, Schema schema)
             {
+                schema = new Schema
+                {
+                    Id = "Patient Chart Upload",
+                    Name = "Patient Chart Upload",
+                    Description = "",
+                    DataFlowDirection = GetDataFlowDirection(),
+                };
+                
                 List<string> staticSchemaProperties = new List<string>()
                 {
                     //strings
@@ -86,8 +94,6 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                 schema.Properties.Clear();
                 schema.Properties.AddRange(properties);
 
-                schema.DataFlowDirection = GetDataFlowDirection();
-                
                 return schema;
             }
 
