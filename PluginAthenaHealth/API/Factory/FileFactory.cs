@@ -25,7 +25,7 @@ namespace PluginAthenaHealth.API.Factory
             
             if (ConfigureWriteFormData.FileStorageMethod == Constants.Local)
             {
-                var fullFilePath = $"{filePath}\\{fileName}"; 
+                var fullFilePath = Path.Join(filePath, fileName); 
         
                 if (!File.Exists(fullFilePath))
                 {
@@ -38,7 +38,7 @@ namespace PluginAthenaHealth.API.Factory
             {
                 var storage = StorageClient.Create(GoogleCredential.FromFile(ConfigureWriteFormData.GoogleCloudStorageCredentialPath));
 
-                var tempPath = ServerStatus.Config.TemporaryDirectory;
+                var tempPath = Path.Join(ServerStatus.Config.TemporaryDirectory, fileName);
                 
                 Logger.Info($"Using {tempPath} as temporary file");
                 using (var outputFile = File.OpenWrite(tempPath))
