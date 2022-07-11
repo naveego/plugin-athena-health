@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -99,34 +100,15 @@ namespace PluginAthenaHealth.API.Factory
                 var token = await Authenticator.GetToken();
                 var uriBuilder = new UriBuilder($"{Settings.GetBaseUrl().TrimEnd('/')}/{path.TrimStart('/')}");
                 var uri = new Uri(uriBuilder.ToString());
-
-                var encodedKeyValues = new Dictionary<string, string> { };
                 
-                foreach (var kv in postData)
-                {
-                    if(kv.Key == "fileName")
-                    {
-                        if (!string.IsNullOrWhiteSpace(kv.Value))
-                        {
-                            encodedKeyValues.Add(kv.Key, HttpUtility.UrlEncode(kv.Value));
-                        }
-                        else
-                        {
-                            throw new Exception("Patient chart upload failure: null or whitespace filename");
-                        }
-                    }
-                    else
-                    {
-                        
-                        encodedKeyValues.Add(kv.Key, kv.Value);
-                    }
-                }
+                var encodedItems = postData.Select(i => WebUtility.UrlEncode(i.Key) + "=" + WebUtility.UrlEncode(i.Value));
+                var encodedContent = new StringContent(String.Join("&", encodedItems), null, "application/x-www-form-urlencoded");
                 
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
                     RequestUri = uri,
-                    Content = new FormUrlEncodedContent(encodedKeyValues)
+                    Content = encodedContent
                 };
 
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

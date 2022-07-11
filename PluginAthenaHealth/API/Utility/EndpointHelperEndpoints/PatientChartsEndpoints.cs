@@ -168,7 +168,7 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                         throw new Exception($"Missing required localFilePath or gcsBucket to upload patient chart");
                     }
                     
-                    var postPath = $"{settings.PracticeId}/patients/{patientId}/documents/clinicaldocument?practiceid={settings.PracticeId}&Content-Type=application/pdf";
+                    var postPath = $"{settings.PracticeId}/patients/{patientId}/documents/clinicaldocument?Content-Type=application/pdf";
                     var configureWriteSettings = JsonConvert.DeserializeObject<ConfigureWriteFormData>(schema.PublisherMetaJson);
                     
                     var fileFactory = new FileFactory(configureWriteSettings);
@@ -176,9 +176,9 @@ namespace PluginAthenaHealth.API.Utility.EndpointHelperEndpoints
                     var fileBase64 = file.GetBase64String();
                     
                     postObject.TryAdd("attachmentcontents", fileBase64);
-                    postObject.TryAdd("documentsubclass", documentSubclass.ToString());
+                    postObject.TryAdd("attachmenttype", "PDF");
                     postObject.TryAdd("departmentid", departmentId.ToString());
-                    postObject.TryAdd("Content-Type", $"application/pdf");
+                    postObject.TryAdd("documentsubclass", documentSubclass.ToString());
                     postObject.TryAdd("originalfilename", new string(fileName.ToString().Take(200).ToArray())); //maximum length of 200 permitted by API
 
                     HttpResponseMessage response = await apiClient.PostAsync(postPath, postObject);
