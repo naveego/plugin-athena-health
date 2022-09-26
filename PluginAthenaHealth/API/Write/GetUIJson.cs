@@ -11,6 +11,7 @@ namespace PluginAthenaHealth.API.Write
             {
                 {"ui:order", new []
                 {
+                    "AutoClose",
                     "FileStorageMethod",
                     "GoogleCloudStorageCredentialPath",
                 }}
