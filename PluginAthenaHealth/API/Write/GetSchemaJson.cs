@@ -18,7 +18,6 @@ namespace PluginAthenaHealth.API.Write
                         {"type", "boolean"},
                         {"title", "Auto Close Uploads"},
                         {"description", "Automatically set the uploaded documents to closed"},
-                        {"enum", new []{Constants.Local, Constants.GoogleCloudStorage}}
                     }},
                     {"FileStorageMethod", new Dictionary<string, object>
                     {
