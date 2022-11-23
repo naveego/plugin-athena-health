@@ -9,6 +9,7 @@ namespace PluginAthenaHealth.DataContracts
 {
     public class ConfigureWriteFormData
     {
+        public bool AutoClose { get; set; } = false;
         public string FileStorageMethod { get; set; }
         public string GoogleCloudStorageCredentialPath { get; set; }
         public string Id { get; set; }

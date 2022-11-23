@@ -13,6 +13,12 @@ namespace PluginAthenaHealth.API.Write
                 {"type", "object"},
                 {"properties", new Dictionary<string, object>
                 {
+                    {"AutoClose", new Dictionary<string, object>
+                    {
+                        {"type", "boolean"},
+                        {"title", "Auto Close Uploads"},
+                        {"description", "Automatically set the uploaded documents to closed"},
+                    }},
                     {"FileStorageMethod", new Dictionary<string, object>
                     {
                         {"type", "string"},
